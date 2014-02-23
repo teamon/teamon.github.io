@@ -1,0 +1,11 @@
+doctype html
+html
+  head
+    = partial "shared/head"
+  body class=(page_classes)
+    .container
+      = partial "shared/nav"
+      /= partial "shared/headline"
+
+      = yield
+

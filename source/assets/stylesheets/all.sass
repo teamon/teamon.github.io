@@ -1,0 +1,102 @@
+@charset "utf-8"
+
+@import "normalize"
+@import "syntax"
+
+$color-main: #444
+$color-light: #AAA
+$color-gray: #efefef
+$color-lightgray: #f9f9f9
+
+body
+  font-family: 'Open Sans', serif
+
+
+ul
+  margin: 0
+  padding: 0
+
+.container
+  color: $color-main
+  width: 600px
+  margin: auto
+
+.banner
+  padding: 20px 0
+  img
+    display: block
+    margin: auto
+    width: 80px
+    height: 80px
+    border-radius: 50%
+
+nav
+  font-size: 15px
+
+  li
+    font-weight: 300
+    display: inline-block
+    height: 48px
+    width: 150px
+    line-height: 48px
+    letter-spacing: 3px
+    text-transform: uppercase
+    text-align: center
+  a
+    text-decoration: none
+    color: $color-light
+    &:hover
+      color: $color-main
+
+
+.headline
+  font-size: 22px
+  font-weight: 100
+  a
+    font-weight: bold
+    color: $color-main
+    text-decoration: none
+
+.post
+  border-top: 1px solid $color-gray
+  margin-top: 40px
+  position: relative
+  a
+    color: $color-main
+
+
+.post-title
+  a
+    font-size: 24px
+    color: $color-main
+    text-decoration: none
+
+.post-date
+  position: absolute
+  top: 0
+  left: 0
+  width: 130px
+  text-align: right
+  margin-left: -140px
+  margin-top: 42px
+  color: $color-light
+  font-size: 15px
+  font-weight: 300
+
+.post-content
+  font-family: "Bitter",serif
+  line-height: 24px
+
+.post-more
+  padding: 10px 0
+  // text-decoration: underline
+
+code
+  background: $color-lightgray
+
+.highlight
+  background: $color-lightgray
+  padding: 10px
+  font-family: Inconsolata, Monaco, 'Andale Mono', Consolas, monospace
+  font-size: 14px
+

@@ -1,0 +1,12 @@
+---
+pageable: true
+per_page: 10
+title:    Tymon Tobolski
+---
+
+- page_articles.each_with_index do |article, i|
+  article.post.post-short
+    = partial "shared/post_header", locals: { article: article }
+    .post-content
+      = article.summary
+      .post-more= link_to "Read more", article.url
