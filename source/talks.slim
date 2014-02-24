@@ -1,0 +1,15 @@
+---
+title:    Tymon Tobolski &mdash; Talks
+---
+
+ul.talks
+- data.talks.each do |talk|
+  li.talk
+    a href=talk[:url]
+      img.talk-image src="http://teamon.github.io/img/angular.png"
+    h1.talk-title
+      a href=talk[:url] = talk[:title]
+    .talk-date
+      = talk[:place]
+      ' ,
+      time= Date.parse(talk[:date]).strftime('%b %e, %Y')

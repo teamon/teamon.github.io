@@ -12,9 +12,13 @@ body
   font-family: 'Open Sans', serif
 
 
-ul
+ul, li, h1, h2, h3, h4, h5, h6
   margin: 0
   padding: 0
+
+ul, li
+  list-style: none
+
 
 .container
   color: $color-main
@@ -59,8 +63,7 @@ nav
 
 .post
   border-top: 1px solid $color-gray
-  margin-top: 40px
-  position: relative
+  padding: 30px 0
   a
     color: $color-main
 
@@ -72,24 +75,16 @@ nav
     text-decoration: none
 
 .post-date
-  position: absolute
-  top: 0
-  left: 0
-  width: 130px
-  text-align: right
-  margin-left: -140px
-  margin-top: 42px
   color: $color-light
-  font-size: 15px
-  font-weight: 300
+  font-size: 12px
+  // font-weight: 300
 
 .post-content
   font-family: "Bitter",serif
-  line-height: 24px
+  line-height: 26px
 
 .post-more
   padding: 10px 0
-  // text-decoration: underline
 
 code
   background: $color-lightgray
@@ -100,3 +95,35 @@ code
   font-family: Inconsolata, Monaco, 'Andale Mono', Consolas, monospace
   font-size: 14px
 
+
+
+.talk
+  border-top: 1px solid $color-gray
+  padding: 30px 0
+  height: 150px
+  clear: both
+  a
+    color: $color-main
+
+
+.talk-embed
+  zoom: 0.5
+
+.talk-image
+  float: left
+  width: 220px
+  height: 150px
+  margin-right: 30px
+
+.talk-title
+  font-size: 24px
+  line-height: 30px
+  padding-bottom: 10px
+  a
+    color: $color-main
+    text-decoration: none
+
+.talk-date
+  color: $color-light
+  font-size: 12px
+  // font-weight: 300

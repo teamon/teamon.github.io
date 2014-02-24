@@ -1,0 +1,11 @@
+---
+- title: Introduction to Angular.js
+  date: "2013-01-28"
+  place: "Meet.js Wrocław"
+  url: https://speakerdeck.com/teamon/angular-dot-js
+
+- title: Angular replacements for jQuery-based libraries
+  desc: Angular directives are not meant to be used for jQuery wrappers but for full featured reusable web components
+  date: "2014-01-08"
+  place: AngularJS Meetup Berlin
+  url: https://speakerdeck.com/teamon/angular-replacements-for-jquery-based-libraries

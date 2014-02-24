@@ -15,7 +15,8 @@ activate :blog do |blog|
 end
 
 page "/feed/atom",  layout: false
-page "blog/*",      layout: :blog
+page "/blog/*",     layout: :blog
+page "/talks"
 
 # activate :directory_indexes
 activate :automatic_image_sizes
