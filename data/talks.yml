@@ -1,11 +1,45 @@
 ---
-- title: Introduction to Angular.js
-  date: "2013-01-28"
-  place: "Meet.js Wrocław"
-  url: https://speakerdeck.com/teamon/angular-dot-js
+- title: Rails Assets
+  date: "2014-03-16"
+  place: wroc_love.rb 2014
+  place_url: http://wrocloverb.com/
+  url: https://speakerdeck.com/teamon/rails-assets-wroc-love-dot-rb
+  thumb: https://speakerd.s3.amazonaws.com/presentations/5cc4bed08f6101317de31e8cfc450540/thumb_slide_4.jpg
 
 - title: Angular replacements for jQuery-based libraries
   desc: Angular directives are not meant to be used for jQuery wrappers but for full featured reusable web components
   date: "2014-01-08"
   place: AngularJS Meetup Berlin
+  place_url: http://www.meetup.com/AngularJS-Meetup-Berlin/
   url: https://speakerdeck.com/teamon/angular-replacements-for-jquery-based-libraries
+  thumb: https://speakerd.s3.amazonaws.com/presentations/b1db3f705b530131a10f227fb9cb52ee/thumb_slide_2.jpg
+
+- title: Rails Assets
+  desc: Talk about <a href="http://rails-assets.org">rails-assets.org</a>
+  date: "2013-12-09"
+  place: LRUG
+  place_url: http://lrug.org/
+  url: https://speakerdeck.com/teamon/rails-assets-lrug
+  thumb: https://speakerd.s3.amazonaws.com/presentations/1d037f8043e50131df99766034268d12/thumb_slide_5.jpg
+
+- title: Introduction to Angular.js
+  date: "2013-01-28"
+  place: Meet.js Wrocław
+  place_url: https://www.facebook.com/groups/meetjs.wroclaw/
+  url: https://speakerdeck.com/teamon/angular-dot-js
+  thumb: https://speakerd.s3.amazonaws.com/presentations/6263b6807b700130e5bc22000a8c4174/thumb_slide_4.jpg
+
+- title: Git - Introduction
+  date: "2013-03-30"
+  place: iLabs PWr
+  place_url: http://ilabs.pwr.wroc.pl/
+  url: https://speakerdeck.com/teamon/git-introduction
+  thumb: https://speakerd.s3.amazonaws.com/presentations/c2ea66d07b72013062111231391e45c8/thumb_slide_32.jpg
+
+- title: Scala for Ruby programmers
+  date: "2011-08-15"
+  place: DRUG
+  place_url: http://drug.org.pl
+  url: https://speakerdeck.com/teamon/scala-for-ruby-programmers
+  thumb: https://speakerd.s3.amazonaws.com/presentations/40c9b8f07b7301301d01123139269b4b/thumb_slide_7.jpg
+

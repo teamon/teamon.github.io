@@ -1,0 +1,98 @@
+---
+- name: Web applications
+  projects:
+  - name: Rails Assets
+    desc: The solution to managing assets in Rails
+    url: http://rails-assets.org
+
+  - name: Plan PWr
+    desc: Schedule generator for Wrocław University of Technology
+    url: http://plan-pwr.pl
+
+  - name: KLP Printer
+    desc: klp.pl content printer
+    url: http://klp.heroku.com
+
+  - name: Redis Browser
+    desc: Redis Database Browser
+    url: http://github.com/teamon/redis-browser
+
+- name: Scala libraries
+  projects:
+  - name: akka.js
+    desc: akka actors for javascript
+    url: http://github.com/teamon/akka.js
+
+  - name: play-navigator
+    desc: Better router for Play Framework 2.x
+    url: http://github.com/teamon/play-navigator
+
+  - name: play-airbrake
+    desc: Airbrake.io notifier for Play 2.x
+    url: http://github.com/teamon/play-airbrake
+
+  - name: play-scalaz
+    desc: Scalaz integration for Play 2.x
+    url: http://github.com/teamon/play-scalaz
+
+  - name: optparse
+    desc: Scala type safe command line options parser using shapeless
+    url: http://github.com/teamon/optparse
+
+  - name: knight
+    desc: scalac plugin that solves NPE when using case classes with default arguments and reflection
+    url: http://github.com/monterail/knight
+
+
+- name: Haskell libraries
+  projects:
+  - name: bicod
+    desc: Binary Compare Databases
+    url: http://github.com/teamon/bicod
+
+
+- name: Ruby libraries
+  projects:
+  - name: sickle
+    desc: Sickle is dead simple library for building complex command line tools
+    url: http://github.com/teamon/sickle
+
+  - name: pokapoka
+    desc: Show your README.md with github styling in browser
+    url: http://github.com/teamon/pokapoka
+
+  - name: rdb4o
+    desc: db4o for jruby
+    url: http://github.com/teamon/rdb4o
+
+  - name: workload
+    desc: Distribute simple tasks to multiple threads with ease
+    url: https://github.com/monterail/workload
+
+  - name: grape-kaminari
+    desc: kaminari integration for Grape
+    url: https://github.com/monterail/grape-kaminari
+
+  - name: grape-rails-cache
+    desc: HTTP and server side cache integration for Grape and Rails
+    url: https://github.com/monterail/grape-rails-cache
+
+
+- name: JavaScript libraries
+  projects:
+  - name: angular date picker
+    desc: Date picker, written in pure angular.js (no jQuery)
+    url: http://github.com/monterail/angular-date-range-picker
+
+  - name: angular tagger
+    desc: Autocomplete with tags, written in pure angular.js (no jQuery)
+    url: http://github.com/monterail/angular-tagger
+
+  - name: angular ujs
+    desc: Rails' jquery-ujs rewritten in angular
+    url: http://github.com/monterail/angular-ujs
+
+  - name: angular faye
+    desc: angular service adapter for <a href="http://faye.jcoglan.com/">faye</a>
+    url: http://github.com/teamon/angular-faye
+

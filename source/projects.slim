@@ -1,0 +1,15 @@
+---
+title: Tymon Tobolski &mdash; Projects
+---
+
+- data.projects.each do |group|
+  div.projects-group
+    h2= group[:name]
+    ul
+      - group[:projects].each do |project|
+        li.projects-item
+          h3
+            a href=project.url = project.name
+          p.projects-desc
+            '  &mdash;
+            = project.desc
