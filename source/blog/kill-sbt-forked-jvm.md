@@ -3,6 +3,8 @@ author: Tymon Tobolski
 date: 2012-02-09
 title: Kill sbt forked JVM
 tags: scala, sbt, akka
+source: tumblr
+source_url: http://tumblr.teamon.eu/post/17330935412/kill-sbt-forked-jvm
 ---
 
 Recently I’ve been playing with [akka][akka] under [sbt][sbt]. I often run sbt console and then use `run` command to execute my app. It works great for single threaded applications that exits by itself. When using akka, there are couple of threads that do not quit. Hitting `ctrl + c` quits running application AND unfortunately also sbt. I figured out, that it can be fixed with a little bit of hacking.
