@@ -1,0 +1,144 @@
+---
+title: merb + db4o
+date: '2009-07-29'
+author: Tymon Tobolski
+tags: merb, ruby
+source: jogger
+source_url: http://teamon.jogger.pl/2009/07/29/merb-db4o
+---
+
+Mini tutorial o tym jak skorzystać z obiektowej bazy [db4o](http://www.db4o.com/) w [merbie](http://merbivore.com) - takie małe _proof of concept_.
+
+### Wymagania & instalacja
+
+- [JRuby](http://jruby.org) - Przykład instalacji można znaleźć na przykład <a href="http://blog.teamon.eu/2009/04/01/jruby-merb-sequel/">w jednym z poprzednich postów </li>
+- [db4o](http://www.db4o.com) - jar dostępny razem z rdb4o
+- [merb](http://merbivore.com) - gem install merb-core
+- [rdb4o](http://github.com/teamon/rdb4o/tree/master)
+
+```bash
+git clone git://github.com/teamon/rdb4o.git
+cd rdb4o
+rake install
+```
+
+- [merb_rdb4o_](http://github.com/teamon/merb_rdb4o/tree/master)
+
+```bash
+git clone git://github.com/teamon/merb_rdb4o.git
+cd merb_rdb4o
+rake jruby:install
+```
+
+<!-- more -->
+### Aplikacja
+
+#### 1. Wygenerowanie szkieletu aplikacji (`core` zamiast `app` - nie chcemy DataMapperowego syfu :P)
+
+```bash
+merb-gen core awesome
+cd awesome
+```
+
+#### 2. Konfiguracja
+
+W pliku `config/init.rb`:
+
+```ruby
+dependency "rdb4o"
+dependency "merb_rdb4o"
+use_orm :rdb4o
+```
+
+Można teraz spróbować uruchomić aplikacje. Wszystkie komendy trzeba poprzedzić `jruby -S`
+
+```bash
+jruby -S merb
+```
+
+Ale...
+
+```bash
+~ No database.yml file found in /Users/teamon/Desktop/rdb4o_test/config.
+~ A sample file was created called database.sample.yml for you to copy and edit.
+```
+
+Trzeba ustawić parametry bazy danych - w naszym przypadku domyślne ustawienia będą w sam raz - wystarczy zmienić nazwe pliku z `database.yml.sample` na `database.yml`.
+
+`mv config/database.yml.sample config/database.yml` (dla leniwych)
+
+Działa! (jeee...)
+
+#### 3. Test first!
+
+Eeee... innym razem
+
+#### 4. Model
+
+```bash
+jruby -s merb-gen model Cat
+```
+
+Przydałoby się parę pól:
+
+```ruby
+class Cat
+  include Rdb4o::Model
+
+  field :name, String
+  field :age, Fixnum
+  field :nice, Boolean
+end
+```
+
+db4o (jeszcze ;]) nie potrafi zapisać obiektów ruby więc trzeba wygenerować klasy javowe
+
+```bash
+jruby -S rake rdb4o:compile_models
+```
+
+Jeśli ktoś bardzo chce to może zobaczyć sobie `app/models/java/Cat.java` ale dla większości nie będzie to miły widok (fuj, Java)
+
+Kto chce kotka?
+
+```bash
+jruby -S merb -i
+```
+
+```ruby
+>> Cat.create :name => "Kitty", :age => 1, :nice => true
+>> Cat.create :name => "Simba", :age => 5, :nice => false
+```
+
+(Polecam pobawić się z klasą `Cat` - streszczenie dostępnych opcji dostępne w [README](http://github.com/teamon/rdb4o/blob/15de306cee37d4b8f8a8261889608191f82b0a0a/README.markdown))
+
+#### 5. Szybki kontroller i widoczek
+
+```bash
+jruby -S merb-gen controller cats
+```
+
+```ruby
+# app/controllers/cats.rb
+class Cats < Application
+  def index
+    @cats = Cat.all
+    render
+  end
+end
+```
+
+
+```erb
+<!--  app/views/cats/index.html.erb -->
+<% @cats.each do |cat| %>
+  <p><%= cat.name %>, <%= cat.age %>, <%= cat.nice? %></p>
+<% end %>
+```
+
+Odpalamy (`jruby -S merb`), wchodzimy na [http://localhost:4000](http://localhost:4000) i widzimy listę zwierzaków - awesome.
+
+To by było na tyle z mini-tutka. Wniosek jest jeden - działa ;]. Jeśli komuś java zjada właśnie 90% cpu to tylko ze względu na opcje `reload_classes` w configu merba (wystarczy dać na false i będzie śmigać)
+
+Jeszcze raz gorąco polecam przejrzeć [README](http://github.com/teamon/rdb4o/tree/master) :)
+
