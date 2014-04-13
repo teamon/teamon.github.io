@@ -20,7 +20,6 @@ page "/talks"
 
 # activate :directory_indexes
 activate :automatic_image_sizes
-activate :livereload
 activate :syntax
 activate :autoprefixer
 
@@ -71,6 +70,11 @@ set :markdown, {
 set :css_dir,     'assets/stylesheets'
 set :js_dir,      'assets/javascripts'
 set :images_dir,  'assets/images'
+
+# Development configuration
+configure :development do
+  activate :livereload
+end
 
 # Build-specific configuration
 configure :build do

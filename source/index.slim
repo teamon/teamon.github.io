@@ -10,3 +10,10 @@ title:    Tymon Tobolski
     .post-content
       = article.summary
       .post-more= link_to "Read more", article.url
+
+ul.pagination
+  - if next_page
+    li.pagination-older= link_to 'Older posts', next_page, :class => "button-alt prefixed-alt"
+  - if prev_page
+    li.pagination-newer= link_to 'Newer posts', prev_page, :class => "button-alt suffixed"
+
