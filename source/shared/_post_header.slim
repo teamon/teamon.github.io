@@ -3,7 +3,7 @@ time.post-date datetime=article.date.strftime('%Y-%m-%d')
   ' Published on
   = article.date.strftime('%b %e, %Y')
 
-- if article.data[:source]
+- if source_banner && article.data[:source]
   .post-source
     | This article was originally <a href="#{article.data[:source_url]}">published
       at #{article.data[:source]}</a>

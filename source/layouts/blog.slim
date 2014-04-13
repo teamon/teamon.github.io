@@ -8,9 +8,18 @@ html
       /= partial "shared/headline"
 
       article.post
-        = partial "shared/post_header", locals: { article: current_article }
+        = partial "shared/post_header", locals: { article: current_article, source_banner: true }
         .post-content
           = yield
+        ul.pagination
+          - prev_article = current_article.previous_article
+          - if prev_article
+            li.pagination-older= link_to 'Older post', prev_article.url, :class => "button-alt prefixed-alt"
+          - next_article = current_article.next_article
+          - if next_article
+            li.pagination-newer= link_to 'Newer post', next_article.url, :class => "button-alt suffixed"
+
+
 
       = partial "shared/footer"
 
