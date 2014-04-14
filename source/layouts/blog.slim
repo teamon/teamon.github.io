@@ -23,9 +23,21 @@ html
           .alert.alert-info
             | This article is written in Polish and was originally
               <a href="#{current_article.data[:source_url]}">published at Jogger</a>.
+        - when "codetunes"
+          .alert.alert-info
+            | This article was originally
+              <a href="#{current_article.data[:source_url]}">published at Codetunes</a>.
 
         div.lead
           = yield
+
+      .page-header
+        h2 Comments
+      - if current_article.data[:source]
+        .alert.alert-info
+          | Please comment at the <a href="#{current_article.data[:source_url]}">original post</a>.
+      - else
+        = partial "shared/disqus"
 
       ul.pager
         - if current_article.previous_article
@@ -34,3 +46,4 @@ html
         - if current_article.next_article
           li.previous
             a href=current_article.next_article.url ← Newer post
+    = partial "shared/footer"

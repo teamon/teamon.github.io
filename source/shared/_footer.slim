@@ -1,5 +1,25 @@
 footer
-  markdown:
-    Copyright 2007-2014
-    Tymon Tobolski
+  .container
+    .page-header
+    .row
+      .col-md-12
+        ul.list-unstyled
+          li.pull-right
+            a href="#top" Back to top ↑
+          li: a href="/" Blog
+          li: a href="/about.html" About
+          li: a href="/projects.html" Projects
+          li: a href="/talks.html" Talks
+          li = "|"
+          li: a href="http://github.com/teamon" GitHub
+          li: a href="http://twitter.com/iteamon" Twitter
+          li: a href="http://monterail.com" Monterail
+          li: a href="http://codetunes.com" Codetunes
+    .row
+      .col-md-12
+        p
+          ' Copyright 2007-#{Time.now.year} &mdash; Tymon Tobolski
+          br
+          ' Based on <a href="http://bootswatch.com/lumen/">Lumen Bootswatch</a>.
+          ' Web fonts from <a href="http://www.google.com/webfonts">Google</a>.
 
