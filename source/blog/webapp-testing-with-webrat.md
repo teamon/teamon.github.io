@@ -3,8 +3,8 @@ author: Tymon Tobolski
 date: 2010-02-13
 title: Webapp testing with Webrat and [your language]
 tags: testing
-source: jogger
-source_url: http://blog.teamon.eu/2010/02/04/webrat-for-your-language/
+source: tumblr
+source_url: http://tumblr.teamon.eu/post/386391102/webapp-testing-with-webrat-and-your-language
 ---
 
 [Webrat](http://github.com/brynary/webrat) was written mainly to improve Rails` web applications testing. But what if webapp is written in something else? The answer is simple - webrat!

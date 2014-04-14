@@ -66,7 +66,7 @@ rubber upload files/*
 rubber server
 ```
 
-Twój jogger będzie dostępny pod adresem http://localhost:1337. Przykładowe treści można zmienić w pliku `content.`yml`. Zmiana w pliku szablonu będzie od razu widoczna po odświeżeniu przeglądarki (nie ma potrzeby restartowania serwera).
+Twój jogger będzie dostępny pod adresem http://localhost:1337. Przykładowe treści można zmienić w pliku `content.yml`. Zmiana w pliku szablonu będzie od razu widoczna po odświeżeniu przeglądarki (nie ma potrzeby restartowania serwera).
 
 ### Podgląd nowego wpisu
 

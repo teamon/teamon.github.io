@@ -23,7 +23,7 @@ If you use zsh, then you'll have to modify `/opt/intel/bin/iccvars.sh` file and 
 Now icc should work from command line. Btw, better add this `source ...` line to you `.bashrc`/`.zshrc` or you'll end up typing that command on every new shell.
 
 ### The "how to make people frustrated" part
-Run XCode, choose new c++ project. In project setting select correct compiler: <img alt="image" src="http://media.tumblr.com/tumblr_ljv6dpQcLN1qat4ul.png" />
+Run XCode, choose new c++ project. In project setting select correct compiler: ![](/assets/images/blog/setting-up-intel-cluster-compiler-with-xcode-4/select.png)
 
 You can try to hit cmd+b and pray it will work. I'm not that lucky.
 

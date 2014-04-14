@@ -3,8 +3,13 @@ time.post-date datetime=article.date.strftime('%Y-%m-%d')
   ' Published on
   = article.date.strftime('%b %e, %Y')
 
-- if source_banner && article.data[:source]
+- if source_banner && article.data[:source] == "tumblr"
   .post-source
     | This article was originally <a href="#{article.data[:source_url]}">published
-      at #{article.data[:source]}</a>
+      at Tumblr</a>
+
+- if source_banner && article.data[:source] == "jogger"
+  .post-source
+    | This article is written in Polish was originally <a href="#{article.data[:source_url]}">published
+      at Jogger</a>
 
