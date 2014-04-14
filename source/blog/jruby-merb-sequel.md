@@ -103,7 +103,7 @@ createdb juby_test
 
 Odpalamy serwer (`jruby -S merb`) - działa.
 
-### ~~Model~~ <ins>Testy!
+### ~~Model~~ Testy!
 
 Nie uczyli, że zaczyna się od testów?
 
@@ -257,7 +257,7 @@ Finished in 0.394 seconds
 4 examples, 0 failures
 ```
 
-Na razie to tyle. W sumie to miało być tylko wprowadzenie do JRuby + Merb i troche Sequel`a ale jak już napisałem to niech zostanie, może się komuś przyda.
+Na razie to tyle. W sumie to miało być tylko wprowadzenie do JRuby + Merb i troche Sequel'a ale jak już napisałem to niech zostanie, może się komuś przyda.
 
 PS. Pisałem to o 4 w nocy, jak tak teraz patrze to ten rspec tu ni w.. w sensie srednia pasuje, ale trudno :P
 
