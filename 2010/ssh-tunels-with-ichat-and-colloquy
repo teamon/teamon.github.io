@@ -1,0 +1,63 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible" /><title>SSH tunels with iChat and Colloquy</title><link href="http://fonts.googleapis.com/css?family=Droid+Sans:400,700|Bitter:400,700,400italic|Open+Sans:300italic,400italic,700italic,400,300,700" media="screen" rel="stylesheet" type="text/css" /><link href="../assets/stylesheets/all-f5ec2720.css" media="screen" rel="stylesheet" type="text/css" /><script src="../assets/javascripts/all-eca7008a.js" type="text/javascript"></script></head><body class="x2010 x2010_ssh-tunels-with-ichat-and-colloquy"><div class="navbar navbar-default"><div class="navbar-collapse collapse navbar-responsive-collapse"><div class="container"><ul class="nav navbar-nav"><li><a class="navbar-brand" href="/">Blog</a></li><li><a class="navbar-brand" href="/about.html">About</a></li><li><a class="navbar-brand" href="/projects.html">Projects</a></li><li><a class="navbar-brand" href="/talks.html">Talks</a></li></ul></div></div></div><div class="container"><article class="post"><div class="page-header"><div class="row"><div class="col-md-10"><h1>SSH tunels with iChat and Colloquy</h1></div><div class="col-md-2 post-date"><time datetime="2010-06-08">Jun  8, 2010</time></div></div></div><div class="alert alert-info">This article was originally
+<a href="http://tumblr.teamon.eu/post/676237829/ssh-tunels-with-ichat-and-colloquy">published at Tumblr</a>.</div><div class="lead"><p>University`s internet connection sucks. The only open ports are 22,80 and 433. I wanted to have access to jabber and IRC but those ports are blocked. Solution? - SSH tunnels and some scripting to switching it on and off quickly. (This is just setup for iChat and Colloquy, not a ssh-tunnels tutorial!</p>
+
+<h3>Requirements</h3>
+
+<p>All you need is server with ssh on port 22.</p>
+
+<h3>Setup</h3>
+
+<h5>iChat</h5>
+
+<p>I created two accounts in iChat with the same login but different server settings.</p>
+
+<p><img src="http://media.tumblr.com/tumblr_l3oz24F52E1qat4ul.png" /></p>
+
+<p>First one has localhost and port <code>8000</code>, and other one with <code>MY_REAL_JABBER_HOST</code> and <code>MY_REAL_JABBER_PORT</code>.</p>
+
+<h6>Colloquy</h6>
+
+<p>Again, I created two connections.</p>
+
+<p><img src="http://cl.ly/a012912eab3cd7d2cbbc/content" /></p>
+
+<p>One for localhost and port <code>7000</code>, and second for <code>irc.freenode.net</code> and <code>6667</code>. (You can use any server you want)</p>
+
+<h3>Scripting</h3>
+
+<p>You need to set up ssh tunnels. I do it with</p>
+<pre class="highlight shell">ssh -N  USER@MY_SSH_HOST -L 7000:irc.freenode.net:6667 -L 8000:MY_JABBER_HOST:MY_JABBER_PORT
+</pre>
+<p>And the last one - AppleScript.</p>
+<pre class="highlight plaintext">(* Enable tunels *)
+
+tell application "Colloquy"
+  tell connection 1 to connect
+  tell connection 2 to disconnect
+end tell
+
+tell application "iChat"
+  set enabled of service 1 to true
+  tell service 1 to log in
+
+  set enabled of service 2 to false
+  tell service 2 to log out
+end tell
+</pre><pre class="highlight plaintext">(* Disable tunels *)
+
+tell application "Colloquy"
+  tell connection 2 to connect
+  tell connection 1 to disconnect
+end tell
+
+tell application "iChat"
+  set enabled of service 2 to true
+  tell service 2 to log in
+
+  set enabled of service 1 to false
+  tell service 1 to log out
+end tell
+</pre>
+<p>Just save those files as <code>enable-tunels.app</code> and <code>disable-tunels.app</code>
+and you&rsquo;ll have quick access to them via spotlight.</p>
+</div></article><div class="page-header"><h2>Comments</h2></div><div class="alert alert-info">Please comment at the <a href="http://tumblr.teamon.eu/post/676237829/ssh-tunels-with-ichat-and-colloquy">original post</a>.</div><ul class="pager"><li class="next"><a href="/2010/scala-swing-auto-resizable-tabbedpane">Older post →</a></li><li class="previous"><a href="/2010/intellij-idea-monokai-color-theme">← Newer post</a></li></ul></div><footer><div class="container"><div class="page-header"></div><div class="row"><div class="col-md-12"><ul class="list-unstyled"><li class="pull-right"><a href="#top">Back to top ↑</a></li><li><a href="/">Blog</a></li><li><a href="/about.html">About</a></li><li><a href="/projects.html">Projects</a></li><li><a href="/talks.html">Talks</a></li><li>|</li><li><a href="http://github.com/teamon">GitHub</a></li><li><a href="http://twitter.com/iteamon">Twitter</a></li><li><a href="http://monterail.com">Monterail</a></li><li><a href="http://codetunes.com">Codetunes</a></li></ul></div></div><div class="row"><div class="col-md-12"><p>Copyright 2007-2014 &mdash; Tymon Tobolski <br />Based on <a href="http://bootswatch.com/lumen/">Lumen Bootswatch</a>. Web fonts from <a href="http://www.google.com/webfonts">Google</a>. </p></div></div></div></footer></body></html>

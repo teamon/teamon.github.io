@@ -1,0 +1,54 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible" /><title>Łatwiejsze drukowanie z klp.pl</title><link href="http://fonts.googleapis.com/css?family=Droid+Sans:400,700|Bitter:400,700,400italic|Open+Sans:300italic,400italic,700italic,400,300,700" media="screen" rel="stylesheet" type="text/css" /><link href="../assets/stylesheets/all-f5ec2720.css" media="screen" rel="stylesheet" type="text/css" /><script src="../assets/javascripts/all-eca7008a.js" type="text/javascript"></script></head><body class="x2008 x2008_latwiejsze-drukowanie-z-klp-pl"><div class="navbar navbar-default"><div class="navbar-collapse collapse navbar-responsive-collapse"><div class="container"><ul class="nav navbar-nav"><li><a class="navbar-brand" href="/">Blog</a></li><li><a class="navbar-brand" href="/about.html">About</a></li><li><a class="navbar-brand" href="/projects.html">Projects</a></li><li><a class="navbar-brand" href="/talks.html">Talks</a></li></ul></div></div></div><div class="container"><article class="post"><div class="page-header"><div class="row"><div class="col-md-10"><h1>Łatwiejsze drukowanie z klp.pl</h1></div><div class="col-md-2 post-date"><time datetime="2008-09-07">Sep  7, 2008</time></div></div></div><div class="alert alert-info">This article is written in Polish and was originally
+<a href="http://teamon.jogger.pl/2008/09/07/latwiejsze-drukowanie-z-klp-pl">published at Jogger</a>.</div><div class="lead"><p>Serwis <a href="http://klp.pl">klp.pl</a> znają chyba wszyscy uczniowie. Portal nie raz ratował życie mojej klasie (liceum, mat-fiz-inf :p). Posiada jednak jedną wadę - nie można wydrukować na raz całego artykułu tylko trzeba odwiedzić każdą strone po kolei.</p>
+
+<p>Tak było do dziś! Postanowiłem umilić sobie i innym drukowanie, a wynikiem tego postanowienia jest <a href="http://teamon.drakor.eu/klp.rb">40 linijek kodu</a> w Ruby. Smacznego.</p>
+
+<p>Sposób użycia:</p>
+<pre class="highlight shell">ruby klp.rb http://ludzie-bezdomni.klp.pl/a-8239.html &gt; ludzie-bezdomni.html
+</pre>
+<p>Dla zainteresowanych jeszcze którki opis. Program pobiera wersje do druku (pierwszą stronę) sprawdza ilość stron, pobiera je wszystkie i łączy.</p>
+<pre class="highlight ruby"><span class="nb">require</span> <span class="s1">'net/http'</span>
+<span class="nb">require</span> <span class="s1">'iconv'</span>
+
+<span class="k">class</span> <span class="nc">Klp</span>
+  <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+    <span class="vi">@http</span> <span class="o">=</span> <span class="no">Net</span><span class="o">::</span><span class="no">HTTP</span><span class="p">.</span><span class="nf">new</span><span class="p">(</span><span class="s1">'klp.pl'</span><span class="p">)</span>
+    <span class="n">match</span> <span class="o">=</span> <span class="n">url</span><span class="p">.</span><span class="nf">match</span><span class="p">(</span><span class="sr">%r[http://(.+).klp.pl/a-(</span><span class="se">\d</span><span class="sr">+).html]</span><span class="p">)</span>
+    <span class="vi">@name</span> <span class="o">=</span> <span class="n">match</span><span class="o">[</span><span class="mi">1</span><span class="o">]</span>
+    <span class="vi">@id</span> <span class="o">=</span> <span class="n">match</span><span class="o">[</span><span class="mi">2</span><span class="o">]</span>
+    <span class="vi">@content</span> <span class="o">=</span> <span class="o">[]</span>
+  <span class="k">end</span>
+
+  <span class="k">def</span> <span class="nf">fetch_page</span><span class="p">(</span><span class="n">page</span><span class="p">)</span>
+    <span class="n">resp</span><span class="p">,</span> <span class="n">body</span> <span class="o">=</span> <span class="vi">@http</span><span class="p">.</span><span class="nf">get</span> <span class="s2">"/doda.php?akcja=druk&amp;ida=</span><span class="si">#{</span><span class="vi">@id</span><span class="si">}</span><span class="s2">&amp;strona=</span><span class="si">#{</span><span class="n">page</span><span class="si">}</span><span class="s2">"</span>
+    <span class="no">Iconv</span><span class="p">.</span><span class="nf">iconv</span><span class="p">(</span><span class="s1">'utf-8'</span><span class="p">,</span> <span class="s1">'iso-8859-2'</span><span class="p">,</span> <span class="n">body</span><span class="p">).</span><span class="nf">first</span>
+  <span class="k">end</span>
+
+  <span class="k">def</span> <span class="nf">parse_content</span><span class="p">(</span><span class="n">body</span><span class="p">)</span>
+    <span class="n">body</span><span class="o">[</span><span class="sr">%r[&lt;/h1&gt;(.+)strona: &amp;nbsp;&amp;nbsp;]um</span><span class="p">,</span> <span class="mi">1</span><span class="o">]</span>
+  <span class="k">end</span>
+
+  <span class="k">def</span> <span class="nf">join</span>
+    <span class="n">page</span> <span class="o">=</span> <span class="n">fetch_page</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    <span class="vi">@title</span> <span class="o">=</span> <span class="n">page</span><span class="o">[</span><span class="sr">%r[&lt;h1&gt;(.+?)&lt;/h1&gt;]</span><span class="p">,</span> <span class="mi">1</span><span class="o">]</span>
+    <span class="n">pages_count</span> <span class="o">=</span> <span class="n">page</span><span class="p">.</span><span class="nf">scan</span><span class="p">(</span><span class="sr">%r[&lt;a href=</span><span class="se">\?</span><span class="sr">akcja=druk&amp;ida=</span><span class="se">\d</span><span class="sr">+&amp;strona=(</span><span class="se">\d</span><span class="sr">+)&gt;]u</span><span class="p">).</span><span class="nf">flatten</span><span class="p">.</span><span class="nf">map</span> <span class="p">{</span><span class="o">|</span><span class="n">e</span><span class="o">|</span> <span class="n">e</span><span class="p">.</span><span class="nf">to_i</span><span class="p">}.</span><span class="nf">max</span>
+    <span class="vi">@content</span> <span class="o">&lt;&lt;</span> <span class="n">parse_content</span><span class="p">(</span><span class="n">page</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">pages_count</span> <span class="o">&gt;</span> <span class="mi">1</span>
+      <span class="p">(</span><span class="mi">2</span><span class="p">.</span><span class="nf">.</span><span class="n">pages_count</span><span class="p">).</span><span class="nf">each</span> <span class="k">do</span> <span class="o">|</span><span class="nb">p</span><span class="o">|</span>
+        <span class="vi">@content</span> <span class="o">&lt;&lt;</span> <span class="n">parse_content</span><span class="p">(</span><span class="n">fetch_page</span><span class="p">(</span><span class="nb">p</span><span class="p">))</span>
+      <span class="k">end</span>
+    <span class="k">end</span>
+
+    <span class="nb">puts</span> <span class="vi">@title</span>
+    <span class="nb">puts</span> <span class="s2">"----"</span>
+    <span class="nb">puts</span> <span class="vi">@content</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+
+<span class="no">Klp</span><span class="p">.</span><span class="nf">new</span><span class="p">(</span><span class="no">ARGV</span><span class="o">[</span><span class="mi">0</span><span class="o">]</span><span class="p">).</span><span class="nf">join</span>
+
+</pre>
+<p>P.S. Czytajcie lektury!</p>
+
+<p>P.S. 2 Wersja online: <a href="http://klp.heroku.com"><a href="http://klp.heroku.com">http://klp.heroku.com</a></a></p>
+</div></article><div class="page-header"><h2>Comments</h2></div><div class="alert alert-info">Please comment at the <a href="http://teamon.jogger.pl/2008/09/07/latwiejsze-drukowanie-z-klp-pl">original post</a>.</div><ul class="pager"><li class="next"><a href="/2008/merb-rake-stats">Older post →</a></li><li class="previous"><a href="/2008/screenshot-calej-strony-quicksilver-i-growl">← Newer post</a></li></ul></div><footer><div class="container"><div class="page-header"></div><div class="row"><div class="col-md-12"><ul class="list-unstyled"><li class="pull-right"><a href="#top">Back to top ↑</a></li><li><a href="/">Blog</a></li><li><a href="/about.html">About</a></li><li><a href="/projects.html">Projects</a></li><li><a href="/talks.html">Talks</a></li><li>|</li><li><a href="http://github.com/teamon">GitHub</a></li><li><a href="http://twitter.com/iteamon">Twitter</a></li><li><a href="http://monterail.com">Monterail</a></li><li><a href="http://codetunes.com">Codetunes</a></li></ul></div></div><div class="row"><div class="col-md-12"><p>Copyright 2007-2014 &mdash; Tymon Tobolski <br />Based on <a href="http://bootswatch.com/lumen/">Lumen Bootswatch</a>. Web fonts from <a href="http://www.google.com/webfonts">Google</a>. </p></div></div></div></footer></body></html>

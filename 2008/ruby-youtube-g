@@ -1,0 +1,52 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible" /><title>Ruby youtube_g</title><link href="http://fonts.googleapis.com/css?family=Droid+Sans:400,700|Bitter:400,700,400italic|Open+Sans:300italic,400italic,700italic,400,300,700" media="screen" rel="stylesheet" type="text/css" /><link href="../assets/stylesheets/all-f5ec2720.css" media="screen" rel="stylesheet" type="text/css" /><script src="../assets/javascripts/all-eca7008a.js" type="text/javascript"></script></head><body class="x2008 x2008_ruby-youtube-g"><div class="navbar navbar-default"><div class="navbar-collapse collapse navbar-responsive-collapse"><div class="container"><ul class="nav navbar-nav"><li><a class="navbar-brand" href="/">Blog</a></li><li><a class="navbar-brand" href="/about.html">About</a></li><li><a class="navbar-brand" href="/projects.html">Projects</a></li><li><a class="navbar-brand" href="/talks.html">Talks</a></li></ul></div></div></div><div class="container"><article class="post"><div class="page-header"><div class="row"><div class="col-md-10"><h1>Ruby youtube_g</h1></div><div class="col-md-2 post-date"><time datetime="2008-07-05">Jul  5, 2008</time></div></div></div><div class="alert alert-info">This article is written in Polish and was originally
+<a href="http://teamon.jogger.pl/2008/07/05/ruby-youtube-g">published at Jogger</a>.</div><div class="lead"><p>Poszukując biblioteki YouTube do Ruby natrafiłem na <a href="http://youtube-g.rubyforge.org/">youtube_g</a>. Niestety doc trochę kłamie więc musiałem się z tym pobawić. Tym samym postanowiłem opisać tu parę możliwości wykorzyystania tej biblioteki.</p>
+
+<h3>Instalacja</h3>
+
+<p>Bardzo skomplikowana, jak wszystko w Ruby</p>
+<pre class="highlight shell">sudo gem install youtube-g
+</pre>
+<p>i już</p>
+
+<h3>Pobranie informacji o filmie</h3>
+<pre class="highlight ruby"><span class="nb">require</span> <span class="s2">"youtube_g"</span>
+
+<span class="n">client</span> <span class="o">=</span> <span class="no">YouTubeG</span><span class="o">::</span><span class="no">Client</span><span class="p">.</span><span class="nf">new</span>
+
+<span class="n">video_id</span> <span class="o">=</span> <span class="s1">'ldMUEJBA1tk'</span>
+
+<span class="n">video</span> <span class="o">=</span> <span class="n">client</span><span class="p">.</span><span class="nf">video_by</span><span class="p">(</span><span class="s2">"http://gdata.youtube.com/feeds/videos/</span><span class="si">#{</span><span class="n">video_id</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>  <span class="c1"># =&gt; YouTubeG::Model::Video</span>
+<span class="c1"># api twierdzi ze methoda video_by przyjmuje jako parametr video_id, okazuje się jednak, że należy podać taki oto url</span>
+<span class="c1"># obiekt video daje nam dostęp do takich oto właściwości:</span>
+
+<span class="n">video</span><span class="p">.</span><span class="nf">title</span> <span class="c1"># =&gt; "Red Hot Chili Peppers - Can't Stop"</span>
+<span class="n">video</span><span class="p">.</span><span class="nf">player_url</span> <span class="c1"># =&gt; "http://www.youtube.com/watch?v=ldMUEJBA1tk"</span>
+<span class="n">video</span><span class="p">.</span><span class="nf">categories</span> <span class="c1"># =&gt; [&lt;YouTubeG::Model::Category:0x123c480 @term="Music", @label="Music"&gt;]</span>
+<span class="n">video</span><span class="p">.</span><span class="nf">categories</span><span class="p">.</span><span class="nf">first</span><span class="p">.</span><span class="nf">label</span> <span class="c1"># =&gt; "Music"</span>
+<span class="n">video</span><span class="p">.</span><span class="nf">author</span> <span class="c1"># =&gt; &lt;YouTubeG::Model::Author:0x1234cd0 @name="littleteapot666", @uri="http://gdata.youtube.com/feeds/users/littleteapot666"&gt;</span>
+<span class="n">video</span><span class="p">.</span><span class="nf">can_embed?</span> <span class="c1"># =&gt; true</span>
+<span class="n">video</span><span class="p">.</span><span class="nf">duration</span> <span class="c1"># =&gt; 276 (sekundy)</span>
+<span class="n">video</span><span class="p">.</span><span class="nf">rating</span> <span class="c1"># =&gt; #&lt;YouTubeG::Model::Rating:0x1223494 @min=1, @max=5, @average=4.91, @rater_count=5116&gt;</span>
+<span class="n">video</span><span class="p">.</span><span class="nf">rating</span><span class="p">.</span><span class="nf">average</span> <span class="c1"># =&gt; 4.91</span>
+<span class="n">video</span><span class="p">.</span><span class="nf">thumbnails</span> <span class="c1"># =&gt; [&lt;YouTubeG::Model::Thumbnail:0x1226950 @width=130, @url="http://img.youtube.com/vi/ldMUEJBA1tk/2.jpg", @time="00:02:18", @height=97&gt;, &lt;YouTubeG::Model::Thumbnail:0x1226680 @width=130, @url="http://img.youtube.com/vi/ldMUEJBA1tk/1.jpg", @time="00:01:09", @height=97&gt;, &lt;YouTubeG::Model::Thumbnail:0x12263b0 @width=130, @url="http://img.youtube.com/vi/ldMUEJBA1tk/3.jpg", @time="00:03:27", @height=97&gt;, &lt;YouTubeG::Model::Thumbnail:0x12260e0 @width=320, @url="http://img.youtube.com/vi/ldMUEJBA1tk/0.jpg", @time="00:02:18", @height=240&gt;]</span>
+<span class="n">video</span><span class="p">.</span><span class="nf">thumbnails</span><span class="p">.</span><span class="nf">first</span><span class="p">.</span><span class="nf">url</span> <span class="c1"># =&gt; "http://img.youtube.com/vi/ldMUEJBA1tk/2.jpg"</span>
+<span class="n">video</span><span class="p">.</span><span class="nf">view_count</span> <span class="c1"># =&gt; 2497942</span>
+</pre>
+<h3>Pobranie listy filmów o podanych kryteriach</h3>
+<pre class="highlight ruby"><span class="n">rresult</span> <span class="o">=</span> <span class="n">client</span><span class="p">.</span><span class="nf">videos_by</span><span class="p">(</span><span class="ss">:query</span> <span class="o">=&gt;</span> <span class="s2">"red hot"</span><span class="p">)</span> <span class="c1"># szukanie po frazie</span>
+
+<span class="n">result</span><span class="p">.</span><span class="nf">videos</span> <span class="c1"># =&gt; tablica z obiektami YouTubeG::Model::Video</span>
+<span class="n">result</span><span class="p">.</span><span class="nf">max_result_count</span> <span class="c1"># =&gt; 25</span>
+<span class="n">result</span><span class="p">.</span><span class="nf">total_result_count</span> <span class="c1"># =&gt; 56403</span>
+
+<span class="c1"># inne możliwości zapytań</span>
+<span class="n">client</span><span class="p">.</span><span class="nf">videos_by</span><span class="p">(</span><span class="ss">:categories</span> <span class="o">=&gt;</span> <span class="o">[</span><span class="ss">:music</span><span class="o">]</span><span class="p">)</span>
+<span class="n">client</span><span class="p">.</span><span class="nf">videos_by</span><span class="p">(</span><span class="ss">:tags</span> <span class="o">=&gt;</span> <span class="o">[</span><span class="s1">'rock'</span><span class="p">,</span> <span class="s1">'funk'</span><span class="o">]</span><span class="p">)</span>
+<span class="n">client</span><span class="p">.</span><span class="nf">videos_by</span><span class="p">(</span><span class="ss">:user</span> <span class="o">=&gt;</span> <span class="s2">"pietraswithin"</span><span class="p">)</span>
+
+<span class="c1"># i jeszcze takie</span>
+<span class="n">client</span><span class="p">.</span><span class="nf">videos_by</span><span class="p">(</span><span class="ss">:most_viewed</span><span class="p">)</span>
+<span class="n">client</span><span class="p">.</span><span class="nf">videos_by</span><span class="p">(</span><span class="ss">:top_rated</span><span class="p">,</span> <span class="ss">:time</span> <span class="o">=&gt;</span> <span class="ss">:today</span><span class="p">)</span>
+</pre>
+<p>Dzięki youtube_g bardzo łatwo można operować na filmach. Daje też na przykład możliwość sprawdzenia czy film podany przez użytkownika naszego serwisu można umieścić (can_embed?) co zapobiega dodawaniu filmów, które nie będą się odtwarzać na stronie.</p>
+</div></article><div class="page-header"><h2>Comments</h2></div><div class="alert alert-info">Please comment at the <a href="http://teamon.jogger.pl/2008/07/05/ruby-youtube-g">original post</a>.</div><ul class="pager"><li class="next"><a href="/2008/pastie-os-x-dashboard-widget">Older post →</a></li><li class="previous"><a href="/2008/prostsze-formularze-w-ruby-on-rails">← Newer post</a></li></ul></div><footer><div class="container"><div class="page-header"></div><div class="row"><div class="col-md-12"><ul class="list-unstyled"><li class="pull-right"><a href="#top">Back to top ↑</a></li><li><a href="/">Blog</a></li><li><a href="/about.html">About</a></li><li><a href="/projects.html">Projects</a></li><li><a href="/talks.html">Talks</a></li><li>|</li><li><a href="http://github.com/teamon">GitHub</a></li><li><a href="http://twitter.com/iteamon">Twitter</a></li><li><a href="http://monterail.com">Monterail</a></li><li><a href="http://codetunes.com">Codetunes</a></li></ul></div></div><div class="row"><div class="col-md-12"><p>Copyright 2007-2014 &mdash; Tymon Tobolski <br />Based on <a href="http://bootswatch.com/lumen/">Lumen Bootswatch</a>. Web fonts from <a href="http://www.google.com/webfonts">Google</a>. </p></div></div></div></footer></body></html>

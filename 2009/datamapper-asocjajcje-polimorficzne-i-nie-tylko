@@ -1,0 +1,176 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible" /><title>Datamapper - asocjajcje polimorficzne (i nie tylko) </title><link href="http://fonts.googleapis.com/css?family=Droid+Sans:400,700|Bitter:400,700,400italic|Open+Sans:300italic,400italic,700italic,400,300,700" media="screen" rel="stylesheet" type="text/css" /><link href="../assets/stylesheets/all-f5ec2720.css" media="screen" rel="stylesheet" type="text/css" /><script src="../assets/javascripts/all-eca7008a.js" type="text/javascript"></script></head><body class="x2009 x2009_datamapper-asocjajcje-polimorficzne-i-nie-tylko"><div class="navbar navbar-default"><div class="navbar-collapse collapse navbar-responsive-collapse"><div class="container"><ul class="nav navbar-nav"><li><a class="navbar-brand" href="/">Blog</a></li><li><a class="navbar-brand" href="/about.html">About</a></li><li><a class="navbar-brand" href="/projects.html">Projects</a></li><li><a class="navbar-brand" href="/talks.html">Talks</a></li></ul></div></div></div><div class="container"><article class="post"><div class="page-header"><div class="row"><div class="col-md-10"><h1>Datamapper - asocjajcje polimorficzne (i nie tylko) </h1></div><div class="col-md-2 post-date"><time datetime="2009-03-04">Mar  4, 2009</time></div></div></div><div class="alert alert-info">This article is written in Polish and was originally
+<a href="http://teamon.jogger.pl/2009/03/04/datamapper-asocjajcje-polimorficzne-i-nie-tylko">published at Jogger</a>.</div><div class="lead"><p>Większości znających Ruby on Rails temat <a href="http://en.wikipedia.org/wiki/Polymorphic_association">Polymorphic Associations</a> nie jest zapewne obcy (z wiki railsów nie działa).
+W skrócie chodzi o relacje odnoszącą się do obiektów z różnych klas. (Nie umiem tłumaczyć, ale skoro nadal to czytasz to pewnie wiesz o.c.b.)</p>
+
+<p>Przejdźmy do konkretów. O ile w ActiveRecord wystarczy dodac <code>:polymorphic =&gt; true</code> to w api Datamappera nie znalazłem takie opcji. Jednak nic nie stoi na przeszkodzie aby napisać to samemu.</p>
+
+<p>Posłużę się pewnym przykładem: chcę aby każda operacja stworzenia nowego obiektu została zapisana. Do tego celu zostanie wykorzystany model <code>Event</code>.</p>
+
+<p>Na początek dwa proste modele, których tworzenie będziemy logować.</p>
+<pre class="highlight ruby"><span class="k">class</span> <span class="nc">Project</span>
+  <span class="kp">include</span> <span class="no">DataMapper</span><span class="o">::</span><span class="no">Resource</span>
+  <span class="n">property</span> <span class="ss">:id</span><span class="p">,</span> <span class="no">Serial</span>
+  <span class="n">property</span> <span class="ss">:name</span><span class="p">,</span> <span class="no">String</span>
+
+  <span class="n">after</span> <span class="ss">:create</span> <span class="k">do</span>
+    <span class="no">Event</span><span class="p">.</span><span class="nf">create</span> <span class="ss">:comment</span> <span class="o">=&gt;</span> <span class="s2">"Project created"</span><span class="p">,</span> <span class="ss">:related</span> <span class="o">=&gt;</span> <span class="nb">self</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+
+
+<span class="k">class</span> <span class="nc">Ticket</span>
+  <span class="kp">include</span> <span class="no">DataMapper</span><span class="o">::</span><span class="no">Resource</span>
+  <span class="n">property</span> <span class="ss">:id</span><span class="p">,</span> <span class="no">Serial</span>
+  <span class="n">property</span> <span class="ss">:title</span><span class="p">,</span> <span class="no">String</span>
+
+  <span class="n">after</span> <span class="ss">:create</span> <span class="k">do</span>
+    <span class="no">Event</span><span class="p">.</span><span class="nf">create</span> <span class="ss">:comment</span> <span class="o">=&gt;</span> <span class="s2">"Ticket created"</span><span class="p">,</span> <span class="ss">:related</span> <span class="o">=&gt;</span> <span class="nb">self</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+</pre>
+<p>W każdym z nich został dodany hook (<code>after :create</code>), który będzie wywołany w momencie utworzenia obiektu.</p>
+
+<p>Teraz czas na model <code>Event</code></p>
+<pre class="highlight ruby"><span class="k">class</span> <span class="nc">Event</span>
+  <span class="kp">include</span> <span class="no">DataMapper</span><span class="o">::</span><span class="no">Resource</span>
+
+  <span class="n">property</span> <span class="ss">:id</span><span class="p">,</span> <span class="no">Serial</span>
+  <span class="n">property</span> <span class="ss">:comment</span><span class="p">,</span> <span class="no">String</span>
+  <span class="n">property</span> <span class="ss">:created_at</span><span class="p">,</span> <span class="no">DateTime</span>
+
+  <span class="n">property</span> <span class="ss">:related_id</span><span class="p">,</span> <span class="nb">Integer</span>
+  <span class="n">property</span> <span class="ss">:related_class</span><span class="p">,</span> <span class="no">String</span>
+
+  <span class="k">def</span> <span class="nf">related</span><span class="o">=</span><span class="p">(</span><span class="n">object</span><span class="p">)</span>
+    <span class="vi">@related</span> <span class="o">=</span> <span class="n">object</span>
+    <span class="nb">self</span><span class="p">.</span><span class="nf">related_id</span> <span class="o">=</span> <span class="vi">@related</span><span class="p">.</span><span class="nf">id</span>
+    <span class="nb">self</span><span class="p">.</span><span class="nf">related_class</span> <span class="o">=</span> <span class="vi">@related</span><span class="p">.</span><span class="nf">class</span><span class="p">.</span><span class="nf">to_s</span>
+  <span class="k">end</span>
+
+  <span class="k">def</span> <span class="nf">related</span>
+    <span class="vi">@related</span> <span class="o">||=</span> <span class="no">Kernel</span><span class="p">.</span><span class="nf">const_get</span><span class="p">(</span><span class="n">related_class</span><span class="p">).</span><span class="nf">get</span><span class="p">(</span><span class="n">related_id</span><span class="p">)</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+</pre>
+<p>Pole <code>related_id</code> przechowuje <code>id</code> obiektu a <code>related_class</code> nazwę jego klasy. Istotnym elementem jest tutaj</p>
+<pre class="highlight ruby"><span class="no">Kernel</span><span class="p">.</span><span class="nf">const_get</span><span class="p">(</span><span class="n">related_class</span><span class="p">).</span><span class="nf">get</span><span class="p">(</span><span class="n">related_id</span><span class="p">)</span>
+</pre>
+<p>Metoda <code>Kernel#const_get</code> zwraca stałą (w naszym przypadku klasę) na podstawie podanej nazwy. (Innym sposobem byłoby użycie <code>eval</code>)</p>
+
+<p>Zobaczmy co nam to wszystko dało:</p>
+<pre class="highlight ruby"><span class="vi">@project1</span> <span class="o">=</span> <span class="no">Project</span><span class="p">.</span><span class="nf">create</span> <span class="ss">:name</span> <span class="o">=&gt;</span> <span class="s1">'Project 1'</span>
+<span class="c1"># =&gt; #&lt;Project id=1 name="Project 1"&gt;</span>
+<span class="vi">@ticket1</span> <span class="o">=</span> <span class="no">Ticket</span><span class="p">.</span><span class="nf">create</span> <span class="ss">:title</span> <span class="o">=&gt;</span> <span class="s1">'Ticket 1'</span>
+<span class="c1"># =&gt; #&lt;Ticket id=1 title="Ticket 1"&gt;</span>
+
+<span class="no">Event</span><span class="p">.</span><span class="nf">all</span>
+<span class="c1"># =&gt; [#&lt;Event id=1 comment="Project created" related_id=1 related_class="Project"&gt;, #&lt;Event id=2 comment="Ticket created" related_id=1 related_class="Ticket"&gt;]</span>
+
+<span class="no">Event</span><span class="p">.</span><span class="nf">get</span><span class="p">(</span><span class="mi">1</span><span class="p">).</span><span class="nf">related</span>
+<span class="c1"># =&gt; #&lt;Project id=1 name="Project 1"&gt;</span>
+<span class="no">Event</span><span class="p">.</span><span class="nf">get</span><span class="p">(</span><span class="mi">1</span><span class="p">).</span><span class="nf">related</span><span class="p">.</span><span class="nf">name</span>
+<span class="c1"># =&gt; "Project 1"</span>
+
+<span class="no">Event</span><span class="p">.</span><span class="nf">get</span><span class="p">(</span><span class="mi">2</span><span class="p">).</span><span class="nf">related</span>
+<span class="c1"># =&gt; #&lt;Ticket id=1 title="Ticket 1"&gt;</span>
+<span class="no">Event</span><span class="p">.</span><span class="nf">get</span><span class="p">(</span><span class="mi">2</span><span class="p">).</span><span class="nf">related</span><span class="p">.</span><span class="nf">title</span>
+<span class="c1"># =&gt; "Ticket 1"</span>
+</pre>
+<p>Aby umilić sobie trochę życie możemy dorzucić jeszcze <code>method_missing</code> do klasy <code>Event</code></p>
+<pre class="highlight ruby"><span class="k">def</span> <span class="nf">method_missing</span><span class="p">(</span><span class="n">method_name</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">block</span><span class="p">)</span>
+  <span class="k">if</span> <span class="n">method_name</span><span class="p">.</span><span class="nf">to_s</span> <span class="o">==</span> <span class="nb">self</span><span class="p">.</span><span class="nf">related_class</span><span class="p">.</span><span class="nf">downcase</span>
+    <span class="k">return</span> <span class="n">related</span>
+  <span class="k">end</span>
+  <span class="k">super</span>
+<span class="k">end</span>
+</pre>
+<p>(Więcej na temat <code>method_missing</code> <a href="http://radarek.jogger.pl/2008/03/26/method-missing-w-rubym-nie-pomin-niczego/">u radarka</a>)</p>
+
+<p>Pozwoli to na użycie:</p>
+<pre class="highlight ruby"><span class="no">Event</span><span class="p">.</span><span class="nf">get</span><span class="p">(</span><span class="mi">1</span><span class="p">).</span><span class="nf">project</span>
+<span class="c1"># =&gt; #&lt;Project id=1 name="Project 1"&gt;</span>
+
+<span class="c1"># ale już nie</span>
+
+<span class="no">Event</span><span class="p">.</span><span class="nf">get</span><span class="p">(</span><span class="mi">1</span><span class="p">).</span><span class="nf">ticket</span>
+<span class="c1"># =&gt; undefined method `ticket' for #&lt;Event:0x111a2c8&gt; (NoMethodError)</span>
+</pre>
+<p>Jednej rzeczy brakuje - lista eventów dla danego obiektu:</p>
+<pre class="highlight ruby"><span class="k">class</span> <span class="nc">Project</span>
+  <span class="kp">include</span> <span class="no">DataMapper</span><span class="o">::</span><span class="no">Resource</span>
+  <span class="n">property</span> <span class="ss">:id</span><span class="p">,</span> <span class="no">Serial</span>
+  <span class="n">property</span> <span class="ss">:name</span><span class="p">,</span> <span class="no">String</span>
+
+  <span class="n">after</span> <span class="ss">:create</span> <span class="k">do</span>
+    <span class="no">Event</span><span class="p">.</span><span class="nf">create</span> <span class="ss">:comment</span> <span class="o">=&gt;</span> <span class="s2">"Project created"</span><span class="p">,</span> <span class="ss">:related</span> <span class="o">=&gt;</span> <span class="nb">self</span>
+  <span class="k">end</span>
+
+  <span class="k">def</span> <span class="nf">events</span>
+    <span class="no">Event</span><span class="p">.</span><span class="nf">all</span><span class="p">(</span><span class="ss">:related_id</span> <span class="o">=&gt;</span> <span class="nb">self</span><span class="p">.</span><span class="nf">id</span><span class="p">,</span> <span class="ss">:related_class</span> <span class="o">=&gt;</span> <span class="s2">"Project"</span><span class="p">)</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+
+<span class="k">class</span> <span class="nc">Ticket</span>
+  <span class="kp">include</span> <span class="no">DataMapper</span><span class="o">::</span><span class="no">Resource</span>
+  <span class="n">property</span> <span class="ss">:id</span><span class="p">,</span> <span class="no">Serial</span>
+  <span class="n">property</span> <span class="ss">:title</span><span class="p">,</span> <span class="no">String</span>
+
+  <span class="n">after</span> <span class="ss">:create</span> <span class="k">do</span>
+    <span class="no">Event</span><span class="p">.</span><span class="nf">create</span> <span class="ss">:comment</span> <span class="o">=&gt;</span> <span class="s2">"Ticket created"</span><span class="p">,</span> <span class="ss">:related</span> <span class="o">=&gt;</span> <span class="nb">self</span>
+  <span class="k">end</span>
+
+  <span class="k">def</span> <span class="nf">events</span>
+    <span class="no">Event</span><span class="p">.</span><span class="nf">all</span><span class="p">(</span><span class="ss">:related_id</span> <span class="o">=&gt;</span> <span class="nb">self</span><span class="p">.</span><span class="nf">id</span><span class="p">,</span> <span class="ss">:related_class</span> <span class="o">=&gt;</span> <span class="s2">"Ticket"</span><span class="p">)</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+
+<span class="vi">@project1</span><span class="p">.</span><span class="nf">events</span>
+<span class="c1"># =&gt; [#&lt;Event id=1 comment="Project created" related_id=1 related_class="Project"&gt;]</span>
+<span class="vi">@ticket1</span><span class="p">.</span><span class="nf">events</span>
+<span class="c1"># =&gt; [#&lt;Event id=2 comment="Ticket created" related_id=1 related_class="Ticket"&gt;]</span>
+</pre>
+<p>Wszystko pięknie działa, jednak niektórzy mogli zauważyć, że część kodu się powtarza - zróbmy coś z tym!</p>
+
+<p>Hook <code>after :create</code> oraz metode <code>events</code> można by wyrzucić do osobnego modułu a następnie dołączyć go do naszych modeli</p>
+<pre class="highlight ruby"><span class="k">module</span> <span class="nn">Eventable</span>
+  <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">included</span><span class="p">(</span><span class="n">base</span><span class="p">)</span>
+    <span class="n">base</span><span class="p">.</span><span class="nf">class_eval</span> <span class="k">do</span>
+      <span class="n">after</span> <span class="ss">:create</span> <span class="k">do</span>
+        <span class="no">Event</span><span class="p">.</span><span class="nf">create</span> <span class="ss">:comment</span> <span class="o">=&gt;</span> <span class="n">event_comment</span><span class="p">,</span> <span class="ss">:related</span> <span class="o">=&gt;</span> <span class="nb">self</span>
+      <span class="k">end</span>
+    <span class="k">end</span>
+  <span class="k">end</span>
+
+  <span class="k">def</span> <span class="nf">events</span>
+    <span class="no">Event</span><span class="p">.</span><span class="nf">all</span><span class="p">(</span><span class="ss">:related_id</span> <span class="o">=&gt;</span> <span class="nb">self</span><span class="p">.</span><span class="nf">id</span><span class="p">,</span> <span class="ss">:related_class</span> <span class="o">=&gt;</span> <span class="nb">self</span><span class="p">.</span><span class="nf">class</span><span class="p">.</span><span class="nf">to_s</span><span class="p">)</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+
+<span class="k">class</span> <span class="nc">Project</span>
+  <span class="kp">include</span> <span class="no">DataMapper</span><span class="o">::</span><span class="no">Resource</span>
+  <span class="kp">include</span> <span class="no">Eventable</span>
+  <span class="n">property</span> <span class="ss">:id</span><span class="p">,</span> <span class="no">Serial</span>
+  <span class="n">property</span> <span class="ss">:name</span><span class="p">,</span> <span class="no">String</span>
+
+  <span class="k">def</span> <span class="nf">event_comment</span>
+    <span class="s2">"Project created"</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+
+<span class="k">class</span> <span class="nc">Ticket</span>
+  <span class="kp">include</span> <span class="no">DataMapper</span><span class="o">::</span><span class="no">Resource</span>
+  <span class="kp">include</span> <span class="no">Eventable</span>
+  <span class="n">property</span> <span class="ss">:id</span><span class="p">,</span> <span class="no">Serial</span>
+  <span class="n">property</span> <span class="ss">:title</span><span class="p">,</span> <span class="no">String</span>
+
+  <span class="k">def</span> <span class="nf">event_comment</span>
+    <span class="s2">"Ticket created"</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+</pre>
+<p>Metoda <code>event_comment</code> została dodana aby było możliwe podanie rożnego komentarza do eventu dla każdego modelu z osobna.</p>
+
+<p>I takim oto dość prostym sposobem otrzymujemy przejrzysty i całkiem sprytny kawałek kodu :)</p>
+
+<p>Na deser <a href="http://gist.github.com/73931">całość z jednym pliku gotowe do uruchomienia</a>.</p>
+</div></article><div class="page-header"><h2>Comments</h2></div><div class="alert alert-info">Please comment at the <a href="http://teamon.jogger.pl/2009/03/04/datamapper-asocjajcje-polimorficzne-i-nie-tylko">original post</a>.</div><ul class="pager"><li class="next"><a href="/2009/dynamiczna-zmiana-folderu-z-szablonami-w-merbie">Older post →</a></li><li class="previous"><a href="/2009/jruby-merb-sequel">← Newer post</a></li></ul></div><footer><div class="container"><div class="page-header"></div><div class="row"><div class="col-md-12"><ul class="list-unstyled"><li class="pull-right"><a href="#top">Back to top ↑</a></li><li><a href="/">Blog</a></li><li><a href="/about.html">About</a></li><li><a href="/projects.html">Projects</a></li><li><a href="/talks.html">Talks</a></li><li>|</li><li><a href="http://github.com/teamon">GitHub</a></li><li><a href="http://twitter.com/iteamon">Twitter</a></li><li><a href="http://monterail.com">Monterail</a></li><li><a href="http://codetunes.com">Codetunes</a></li></ul></div></div><div class="row"><div class="col-md-12"><p>Copyright 2007-2014 &mdash; Tymon Tobolski <br />Based on <a href="http://bootswatch.com/lumen/">Lumen Bootswatch</a>. Web fonts from <a href="http://www.google.com/webfonts">Google</a>. </p></div></div></div></footer></body></html>

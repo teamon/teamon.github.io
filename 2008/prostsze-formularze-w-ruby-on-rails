@@ -1,0 +1,112 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible" /><title>Prostsze formularze w Ruby on Rails</title><link href="http://fonts.googleapis.com/css?family=Droid+Sans:400,700|Bitter:400,700,400italic|Open+Sans:300italic,400italic,700italic,400,300,700" media="screen" rel="stylesheet" type="text/css" /><link href="../assets/stylesheets/all-f5ec2720.css" media="screen" rel="stylesheet" type="text/css" /><script src="../assets/javascripts/all-eca7008a.js" type="text/javascript"></script></head><body class="x2008 x2008_prostsze-formularze-w-ruby-on-rails"><div class="navbar navbar-default"><div class="navbar-collapse collapse navbar-responsive-collapse"><div class="container"><ul class="nav navbar-nav"><li><a class="navbar-brand" href="/">Blog</a></li><li><a class="navbar-brand" href="/about.html">About</a></li><li><a class="navbar-brand" href="/projects.html">Projects</a></li><li><a class="navbar-brand" href="/talks.html">Talks</a></li></ul></div></div></div><div class="container"><article class="post"><div class="page-header"><div class="row"><div class="col-md-10"><h1>Prostsze formularze w Ruby on Rails</h1></div><div class="col-md-2 post-date"><time datetime="2008-07-16">Jul 16, 2008</time></div></div></div><div class="alert alert-info">This article is written in Polish and was originally
+<a href="http://teamon.jogger.pl/2008/07/16/prostsze-formularze-w-ruby-on-rails">published at Jogger</a>.</div><div class="lead"><p>Zawsze irytowało mnie pisanie formularzy. Ciągłe powtarzanie kodu w stylu:</p>
+<pre class="highlight erb"><span class="nt">&lt;p&gt;</span>
+  <span class="cp">&lt;%=</span> <span class="n">f</span><span class="p">.</span><span class="nf">label</span> <span class="ss">:field</span> <span class="cp">%&gt;</span>
+  <span class="cp">&lt;%=</span> <span class="n">f</span><span class="p">.</span><span class="nf">text_field</span> <span class="ss">:field</span> <span class="cp">%&gt;</span>
+<span class="nt">&lt;/p&gt;</span>
+</pre>
+<p>wydało mi się nieco bezsensowne. Na szczęście jest na to rozwiązanie. Helper <code>form_for</code> posiada parametr <code>:builder</code> który pozwala na ustawienie własnego FormBuildera - klasy obsługującej &ldquo;budowanie&rdquo; pól formularza.</p>
+
+<p>Mój wymarzony formularz wygląda teraz mniej więcej tak:</p>
+<pre class="highlight erb"><span class="cp">&lt;%</span> <span class="n">standard_form_for</span> <span class="vi">@user</span> <span class="k">do</span> <span class="o">|</span><span class="n">f</span><span class="o">|</span> <span class="cp">-%&gt;</span>
+  <span class="cp">&lt;%=</span> <span class="n">errors_for</span> <span class="ss">:user</span> <span class="cp">%&gt;</span>
+
+  <span class="cp">&lt;%</span> <span class="n">f</span><span class="p">.</span><span class="nf">fieldset</span> <span class="k">do</span> <span class="cp">%&gt;</span>
+    <span class="cp">&lt;%=</span> <span class="n">f</span><span class="p">.</span><span class="nf">text_field</span> <span class="ss">:login</span><span class="p">,</span> <span class="ss">:info</span> <span class="o">=&gt;</span> <span class="s2">"Only letters"</span> <span class="cp">%&gt;</span>
+    <span class="cp">&lt;%=</span> <span class="n">f</span><span class="p">.</span><span class="nf">text_field</span> <span class="ss">:email</span> <span class="cp">%&gt;</span>
+    <span class="cp">&lt;%=</span> <span class="n">f</span><span class="p">.</span><span class="nf">password_field</span> <span class="ss">:password</span> <span class="cp">%&gt;</span>
+    <span class="cp">&lt;%=</span> <span class="n">f</span><span class="p">.</span><span class="nf">password_field</span> <span class="ss">:password_confirmation</span> <span class="cp">%&gt;</span>
+  <span class="cp">&lt;%</span> <span class="k">end</span> <span class="cp">%&gt;</span>
+
+  <span class="cp">&lt;%</span> <span class="n">f</span><span class="p">.</span><span class="nf">fieldset</span> <span class="s2">"Personal info"</span> <span class="k">do</span> <span class="cp">%&gt;</span>
+    <span class="cp">&lt;%=</span> <span class="n">f</span><span class="p">.</span><span class="nf">text_field</span> <span class="ss">:first_name</span> <span class="cp">%&gt;</span>
+    <span class="cp">&lt;%=</span> <span class="n">f</span><span class="p">.</span><span class="nf">text_field</span> <span class="ss">:last_name</span> <span class="cp">%&gt;</span>
+    <span class="cp">&lt;%=</span> <span class="n">f</span><span class="p">.</span><span class="nf">text_area</span> <span class="ss">:description</span> <span class="cp">%&gt;</span>
+  <span class="cp">&lt;%</span> <span class="k">end</span> <span class="cp">%&gt;</span>
+
+  <span class="cp">&lt;%</span> <span class="n">f</span><span class="p">.</span><span class="nf">submit_tag</span> <span class="s1">'Save'</span> <span class="k">do</span> <span class="cp">%&gt;</span>
+    or <span class="cp">&lt;%=</span> <span class="n">link_to</span> <span class="s2">"Back"</span><span class="p">.</span><span class="nf">t</span><span class="p">,</span> <span class="n">user_path</span><span class="p">(</span><span class="vi">@user</span><span class="p">)</span> <span class="cp">%&gt;</span>
+  <span class="cp">&lt;%</span> <span class="k">end</span> <span class="cp">%&gt;</span>
+<span class="cp">&lt;%</span> <span class="k">end</span> <span class="cp">%&gt;</span>
+</pre>
+<p>Ale po kolei, co się tak właściwie tutaj dzieje?</p>
+
+<p>Na samym początku jest helper <code>standard_form_for</code>, który wygląda tak:</p>
+<pre class="highlight ruby"><span class="k">def</span> <span class="nf">standard_form_for</span><span class="p">(</span><span class="nb">name</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">&amp;</span><span class="nb">proc</span><span class="p">)</span>
+  <span class="n">options</span> <span class="o">=</span> <span class="n">args</span><span class="p">.</span><span class="nf">last</span><span class="p">.</span><span class="nf">is_a?</span><span class="p">(</span><span class="no">Hash</span><span class="p">)</span> <span class="p">?</span> <span class="n">args</span><span class="p">.</span><span class="nf">pop</span> <span class="p">:</span> <span class="p">{}</span>
+  <span class="n">options</span> <span class="o">=</span> <span class="n">options</span><span class="p">.</span><span class="nf">merge</span><span class="p">(</span><span class="ss">:builder</span> <span class="o">=&gt;</span> <span class="no">StandardBuilder</span><span class="p">)</span>
+  <span class="n">args</span> <span class="o">=</span> <span class="p">(</span><span class="n">args</span> <span class="o">&lt;&lt;</span> <span class="n">options</span><span class="p">)</span>
+  <span class="n">form_for</span><span class="p">(</span><span class="nb">name</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">&amp;</span><span class="nb">proc</span><span class="p">)</span>
+<span class="k">end</span>
+</pre>
+<p>Jest to tylko wygodniejszy sposób na zapisanie <code>form_for</code> z naszym własnym builderem. Najlepiej umieścić tą metodę w <code>application_helper.rb</code></p>
+
+<p>Przejdźmy teraz do samej klasy <code>StandardBuilder</code>. Najpierw sama definicja klasy.</p>
+<pre class="highlight ruby"><span class="c1"># app/helpers/standard_builder.rb</span>
+<span class="k">class</span> <span class="nc">StandardBuilder</span> <span class="o">&lt;</span> <span class="no">ActionView</span><span class="o">::</span><span class="no">Helpers</span><span class="o">::</span><span class="no">FormBuilder</span>
+  <span class="kp">include</span> <span class="no">ActionView</span><span class="o">::</span><span class="no">Helpers</span><span class="o">::</span><span class="no">TextHelper</span>
+  <span class="kp">include</span> <span class="no">ActionView</span><span class="o">::</span><span class="no">Helpers</span><span class="o">::</span><span class="no">FormTagHelper</span>
+<span class="k">end</span>
+</pre>
+<p>Najpierw najprostsze - <code>f.fieldset</code>.</p>
+<pre class="highlight ruby"><span class="k">def</span> <span class="nf">fieldset</span><span class="p">(</span><span class="n">legend</span> <span class="o">=</span> <span class="s2">""</span><span class="p">,</span> <span class="o">&amp;</span><span class="nb">proc</span><span class="p">)</span>
+  <span class="nb">p</span> <span class="o">=</span> <span class="n">legend</span><span class="p">.</span><span class="nf">blank?</span> <span class="p">?</span> <span class="s2">""</span> <span class="p">:</span> <span class="vi">@template</span><span class="p">.</span><span class="nf">content_tag</span><span class="p">(</span><span class="s2">"legend"</span><span class="p">,</span> <span class="n">legend</span><span class="p">)</span>
+  <span class="n">concat</span><span class="p">(</span><span class="s2">"&lt;fieldset&gt;"</span> <span class="o">+</span> <span class="nb">p</span><span class="p">,</span> <span class="nb">proc</span><span class="p">.</span><span class="nf">binding</span><span class="p">)</span>
+  <span class="nb">proc</span><span class="p">.</span><span class="nf">call</span>
+  <span class="n">concat</span><span class="p">(</span><span class="s2">"&lt;/fieldset&gt;"</span><span class="p">,</span> <span class="nb">proc</span><span class="p">.</span><span class="nf">binding</span><span class="p">)</span>
+<span class="k">end</span>
+</pre>
+<p>Parametru <code>legend</code> chyba nie trzeba objaśniać ;). Reszta to tylko &ldquo;opakowanie&rdquo; obiektu Proc w tag <code>&lt;fieldset&gt;</code>. Można by tu dodać jeszcze więcej opcji typu <code>id</code> czy <code>class</code> jednak nigdy nie było mi to potrzebne.</p>
+
+<p>W większości przypadków <code>input[type=&quot;submit&quot;]</code> jest wstawiany poprzez helper <code>submit_tag</code>. Ja jednak postanowiłem dołączyć ją do buildera, będzie wygodniej i bardziej spójnie.</p>
+<pre class="highlight ruby"><span class="k">def</span> <span class="nf">submit_tag</span><span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="o">&amp;</span><span class="nb">proc</span><span class="p">)</span>
+  <span class="n">submit</span> <span class="o">=</span>  <span class="vi">@template</span><span class="p">.</span><span class="nf">tag</span><span class="p">(</span><span class="ss">:input</span><span class="p">,</span> <span class="ss">:type</span> <span class="o">=&gt;</span> <span class="s2">"submit"</span><span class="p">,</span> <span class="ss">:value</span> <span class="o">=&gt;</span> <span class="n">label</span><span class="p">,</span> <span class="ss">:class</span> <span class="o">=&gt;</span> <span class="s2">"submit"</span><span class="p">)</span>
+  <span class="k">if</span> <span class="nb">proc</span>
+    <span class="n">concat</span><span class="p">(</span><span class="s2">"&lt;p class=</span><span class="se">\"</span><span class="s2">actions</span><span class="se">\"</span><span class="s2">&gt;"</span> <span class="o">+</span> <span class="n">submit</span><span class="p">,</span> <span class="nb">proc</span><span class="p">.</span><span class="nf">binding</span><span class="p">)</span>
+    <span class="nb">proc</span><span class="p">.</span><span class="nf">call</span>
+    <span class="n">concat</span><span class="p">(</span><span class="s2">"&lt;/p&gt;"</span><span class="p">,</span> <span class="nb">proc</span><span class="p">.</span><span class="nf">binding</span><span class="p">)</span>
+  <span class="k">else</span>
+    <span class="vi">@template</span><span class="p">.</span><span class="nf">content_tag</span><span class="p">(</span><span class="ss">:p</span><span class="p">,</span> <span class="n">submit</span><span class="p">,</span> <span class="ss">:class</span> <span class="o">=&gt;</span> <span class="s2">"actions"</span><span class="p">)</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+</pre>
+<p>Wszystko co umieszczone w bloku podanym do tej metody razem z inputem zostanie opakowane w <code>&lt;p class=&quot;actions&quot;&gt;...&lt;/p&gt;</code>. Dołączenie bloku jest oczywiście opcjonalne.</p>
+
+<p>Przejdźmy teraz do pomocniczej metody <code>label</code>.</p>
+<pre class="highlight ruby"><span class="k">def</span> <span class="nf">label</span><span class="p">(</span><span class="n">field</span><span class="p">,</span> <span class="n">label</span> <span class="o">=</span> <span class="kp">nil</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">)</span>
+  <span class="n">label</span> <span class="o">||=</span> <span class="n">field</span><span class="p">.</span><span class="nf">to_s</span><span class="p">.</span><span class="nf">humanize</span>
+  <span class="k">super</span><span class="p">(</span><span class="n">field</span><span class="p">,</span> <span class="n">label</span> <span class="o">+</span> <span class="s2">":"</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">)</span>
+<span class="k">end</span>
+</pre>
+<p>Tutaj tylko dodane &ldquo;:&rdquo; na końcu. (W tym miejscu można również dodać metody obsługujące i18n).</p>
+
+<p>Po tej krótkie umysłowej rozgrzewce czas na coś nieco bardziej skomplikowanego.</p>
+<pre class="highlight ruby"><span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">create_p_field</span><span class="p">(</span><span class="n">method_name</span><span class="p">)</span>
+  <span class="n">define_method</span><span class="p">(</span><span class="n">method_name</span><span class="p">)</span> <span class="k">do</span> <span class="o">|</span><span class="n">label</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="o">|</span>
+    <span class="n">options</span> <span class="o">=</span> <span class="n">args</span><span class="p">.</span><span class="nf">extract_options!</span>
+    <span class="n">info</span> <span class="o">=</span> <span class="n">options</span><span class="p">.</span><span class="nf">delete</span><span class="p">(</span><span class="ss">:info</span><span class="p">)</span>
+    <span class="n">clean</span> <span class="o">=</span> <span class="n">options</span><span class="p">.</span><span class="nf">delete</span><span class="p">(</span><span class="ss">:clean</span><span class="p">)</span>
+
+
+    <span class="n">options</span><span class="o">[</span><span class="ss">:class</span><span class="o">]</span> <span class="o">||=</span> <span class="p">(</span><span class="n">method_name</span> <span class="o">==</span> <span class="s2">"text_area"</span> <span class="p">?</span> <span class="s2">""</span> <span class="p">:</span> <span class="n">method_name</span><span class="p">.</span><span class="nf">split</span><span class="p">(</span><span class="s2">"_"</span><span class="p">).</span><span class="nf">first</span><span class="p">)</span>
+    <span class="k">return</span> <span class="k">super</span><span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="n">options</span><span class="p">)</span> <span class="k">if</span> <span class="n">clean</span>
+
+
+    <span class="n">info</span> <span class="o">=</span> <span class="n">info</span> <span class="p">?</span> <span class="vi">@template</span><span class="p">.</span><span class="nf">content_tag</span><span class="p">(</span><span class="ss">:span</span><span class="p">,</span> <span class="n">info</span><span class="p">,</span> <span class="ss">:class</span> <span class="o">=&gt;</span> <span class="s2">"info"</span><span class="p">)</span> <span class="p">:</span> <span class="s2">""</span>
+    <span class="vi">@template</span><span class="p">.</span><span class="nf">content_tag</span><span class="p">(</span><span class="ss">:p</span><span class="p">,</span> <span class="n">label</span><span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="n">options</span><span class="o">[</span><span class="ss">:label</span><span class="o">]</span><span class="p">)</span> <span class="o">+</span> <span class="k">super</span><span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="n">options</span><span class="p">)</span> <span class="o">+</span> <span class="n">info</span><span class="p">)</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+</pre>
+<p>W tym miejscu dzieje się cała magia ;). Jest to metoda klasy, która definiuje metodę egzemplarza za pomocą <code>define_method</code> i podanych parametrów. Podobnie jak w powyższym przykładzie, metodę tę można dowolnie zmodyfikować w celu dopasowania do własnych potrzeb.</p>
+
+<p>Na początku pobieramy i usuwamy kilka parametrów z hasha <code>options</code>. Następnie ustawiamy klase na podstawie nazwy metody. Opcja <code>clean</code> pozwala nam na wstawienie czystego pola w niestandardowej sytuacji. Potem dodajemy <code>&lt;span class=&quot;info&quot;&gt;</code> jeśli został podany parametr <code>info</code>. Na koniec pakujemy wszystko w <code>&lt;p&gt;...&lt;/p&gt;</code> dodając pole <code>label</code>.</p>
+
+<p>Teraz wystarczy tylko wygenerować metody dla wszystkich typów pól:</p>
+<pre class="highlight ruby"><span class="n">field_helpers</span><span class="p">.</span><span class="nf">each</span> <span class="k">do</span> <span class="o">|</span><span class="nb">name</span><span class="o">|</span>
+  <span class="n">create_p_field</span><span class="p">(</span><span class="nb">name</span><span class="p">)</span> <span class="k">unless</span> <span class="o">[</span><span class="s2">"label"</span><span class="o">]</span><span class="p">.</span><span class="nf">include?</span><span class="p">(</span><span class="nb">name</span><span class="p">)</span>
+<span class="k">end</span>
+</pre>
+<p>I to by było na tyle. Jak już wspomniałem, możliwości dostosowania są nieograniczone. A wszystko to aby ułatwić sobie życie :)</p>
+
+<p><a href="http://teamon.drakor.eu/standard_builder.rb"><code>standard_builder.rb</code></a> do pobrania.</p>
+</div></article><div class="page-header"><h2>Comments</h2></div><div class="alert alert-info">Please comment at the <a href="http://teamon.jogger.pl/2008/07/16/prostsze-formularze-w-ruby-on-rails">original post</a>.</div><ul class="pager"><li class="next"><a href="/2008/ruby-youtube-g">Older post →</a></li><li class="previous"><a href="/2008/blad-w-ruby-array-shuffle">← Newer post</a></li></ul></div><footer><div class="container"><div class="page-header"></div><div class="row"><div class="col-md-12"><ul class="list-unstyled"><li class="pull-right"><a href="#top">Back to top ↑</a></li><li><a href="/">Blog</a></li><li><a href="/about.html">About</a></li><li><a href="/projects.html">Projects</a></li><li><a href="/talks.html">Talks</a></li><li>|</li><li><a href="http://github.com/teamon">GitHub</a></li><li><a href="http://twitter.com/iteamon">Twitter</a></li><li><a href="http://monterail.com">Monterail</a></li><li><a href="http://codetunes.com">Codetunes</a></li></ul></div></div><div class="row"><div class="col-md-12"><p>Copyright 2007-2014 &mdash; Tymon Tobolski <br />Based on <a href="http://bootswatch.com/lumen/">Lumen Bootswatch</a>. Web fonts from <a href="http://www.google.com/webfonts">Google</a>. </p></div></div></div></footer></body></html>

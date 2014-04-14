@@ -1,0 +1,62 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible" /><title>Merb - kolorowy logger</title><link href="http://fonts.googleapis.com/css?family=Droid+Sans:400,700|Bitter:400,700,400italic|Open+Sans:300italic,400italic,700italic,400,300,700" media="screen" rel="stylesheet" type="text/css" /><link href="../assets/stylesheets/all-f5ec2720.css" media="screen" rel="stylesheet" type="text/css" /><script src="../assets/javascripts/all-eca7008a.js" type="text/javascript"></script></head><body class="x2008 x2008_merb-kolorowy-logger"><div class="navbar navbar-default"><div class="navbar-collapse collapse navbar-responsive-collapse"><div class="container"><ul class="nav navbar-nav"><li><a class="navbar-brand" href="/">Blog</a></li><li><a class="navbar-brand" href="/about.html">About</a></li><li><a class="navbar-brand" href="/projects.html">Projects</a></li><li><a class="navbar-brand" href="/talks.html">Talks</a></li></ul></div></div></div><div class="container"><article class="post"><div class="page-header"><div class="row"><div class="col-md-10"><h1>Merb - kolorowy logger</h1></div><div class="col-md-2 post-date"><time datetime="2008-10-31">Oct 31, 2008</time></div></div></div><div class="alert alert-info">This article is written in Polish and was originally
+<a href="http://teamon.jogger.pl/2008/10/31/merb-kolorowy-logger">published at Jogger</a>.</div><div class="lead"><p><a href="http://merbivore.com">Merb</a> wczoraj został wypuszczony na świat w wersji RC4. Z tej okazji* rozpoczynam cykl kilku postów z przydatnymi sztuczkami związanymi z tym właśnie frameworkiem. Na pierwszy ogień idzie kolorowanie wiadomości z merbowego loggera.</p>
+
+<p><code>Merb.logger</code> jak sama nazwa służy do logowania informacji. Jakich i gdzie zależy od ustawień dla danego środowiska (<code>config/environments/*.rb</code>). Pliki konfiguracyjne merba są proste, czytelne i opatrzone komentarzem, więc nie ma sensu ich opisywać. Istotne natomiast jest to, że czasami łatwo się w logach pogubić, szczególnie podczas pracy nad projektem. Merb loguje wszystko tak samo - jako zwykły tekst. I tu właśnie narodził się pomysł, żeby informacje różnego typu pokazywać w różnych kolorach, tak aby od razu było wiadomo co jest co i ułatwić szukanie interesujących nas linijek.</p>
+
+<p>Poniżej znajduję się &ldquo;patch&rdquo; który koloruje logi w zależności od poziomu.</p>
+<pre class="highlight ruby"><span class="c1"># lib/color_logger.rb</span>
+
+<span class="k">module</span> <span class="nn">Merb</span>
+  <span class="k">class</span> <span class="nc">Logger</span>
+    <span class="c1"># 30=black 31=red 32=green 33=yellow 34=blue 35=magenta 36=cyan 37=white</span>
+    <span class="no">Colors</span> <span class="o">=</span> <span class="no">Mash</span><span class="p">.</span><span class="nf">new</span><span class="p">({</span>
+      <span class="ss">:fatal</span> <span class="o">=&gt;</span> <span class="mi">31</span><span class="p">,</span>
+      <span class="ss">:error</span> <span class="o">=&gt;</span> <span class="mi">31</span><span class="p">,</span>
+      <span class="ss">:warn</span>  <span class="o">=&gt;</span> <span class="mi">33</span><span class="p">,</span>
+      <span class="ss">:info</span>  <span class="o">=&gt;</span> <span class="mi">37</span><span class="p">,</span>
+      <span class="ss">:debug</span> <span class="o">=&gt;</span> <span class="mi">36</span>
+    <span class="p">})</span>
+
+    <span class="no">Levels</span><span class="p">.</span><span class="nf">each_pair</span> <span class="k">do</span> <span class="o">|</span><span class="nb">name</span><span class="p">,</span> <span class="n">number</span><span class="o">|</span>
+      <span class="nb">class_eval</span> <span class="o">&lt;&lt;-</span><span class="no">LEVELMETHODS</span><span class="p">,</span> <span class="kp">__FILE__</span><span class="p">,</span> <span class="kp">__LINE__</span><span class="sh">
+
+      def </span><span class="si">#{</span><span class="nb">name</span><span class="si">}</span><span class="sh">(message = nil)
+        self &lt;&lt; "</span><span class="se">\033</span><span class="sh">[0;</span><span class="si">#{</span><span class="no">Colors</span><span class="o">[</span><span class="nb">name</span><span class="o">]</span><span class="si">}</span><span class="sh">m%s</span><span class="se">\033</span><span class="sh">[0m" % message if </span><span class="si">#{</span><span class="n">number</span><span class="si">}</span><span class="sh"> &gt;= level
+        self
+      end
+
+      def </span><span class="si">#{</span><span class="nb">name</span><span class="si">}</span><span class="sh">!(message = nil)
+        self &lt;&lt; "</span><span class="se">\033</span><span class="sh">[0;</span><span class="si">#{</span><span class="no">Colors</span><span class="o">[</span><span class="nb">name</span><span class="o">]</span><span class="si">}</span><span class="sh">m%s</span><span class="se">\033</span><span class="sh">[0m" % message if </span><span class="si">#{</span><span class="n">number</span><span class="si">}</span><span class="sh"> &gt;= level
+        flush if </span><span class="si">#{</span><span class="n">number</span><span class="si">}</span><span class="sh"> &gt;= level
+        self
+      end
+
+</span><span class="no">      LEVELMETHODS</span>
+    <span class="k">end</span>
+
+    <span class="k">def</span> <span class="nf">my_debug</span><span class="p">(</span><span class="n">message</span> <span class="o">=</span> <span class="kp">nil</span><span class="p">)</span>
+      <span class="nb">self</span> <span class="o">&lt;&lt;</span>  <span class="s2">"</span><span class="se">\033</span><span class="s2">[1;35m%s</span><span class="se">\033</span><span class="s2">[0m"</span> <span class="o">%</span> <span class="n">message</span>
+      <span class="nb">self</span>
+    <span class="k">end</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+</pre>
+<p>Aby kolorowanie działało tylko w trybie development wystarczy dodać <code>require &quot;lib/color_logger.rb&quot;</code> w pliku <code>config/environments/development.rb</code> i jest to chyba najlepsze rozwiązanie. W trybie production i tak zazwyczaj logujemy do pliku a nie na STDOUT więc kolorowanie tylko by zaśmiecało pliki.</p>
+
+<p>Niektórych pewnie dziwi metoda <code>my_debug</code>. Dodałem ją dlatego, iż datamapper korzysta z <code>Merb.logger.debug</code> do logowania zapytań do bazy, co nieco utrudnia znalezienie naszego własnego wywołania, a tak <code>Merb.logger.my_debug(var)</code> i od razu rzuca się w oczy ;) Do tego prosty helper:</p>
+<pre class="highlight ruby"><span class="c1"># app/helpers/global_helpers.rb</span>
+<span class="k">def</span> <span class="nf">d</span><span class="p">(</span><span class="n">var</span><span class="p">)</span>
+  <span class="no">Merb</span><span class="p">.</span><span class="nf">logger</span><span class="p">.</span><span class="nf">my_debug</span><span class="p">(</span><span class="n">var</span><span class="p">.</span><span class="nf">inspect</span><span class="p">)</span>
+<span class="k">end</span>
+</pre>
+<p>Kolory oczywiście można sobie pozmieniać. Można też wyłączyć logowanie zapytań do bazy poprzez:</p>
+<pre class="highlight ruby"><span class="c1"># config/init.rb</span>
+<span class="no">Merb</span><span class="o">::</span><span class="no">BootLoader</span><span class="p">.</span><span class="nf">after_app_loads</span> <span class="k">do</span>
+  <span class="no">DataObjects</span><span class="o">::</span><span class="no">Postgres</span><span class="p">.</span><span class="nf">logger</span> <span class="o">=</span> <span class="no">DataObjects</span><span class="o">::</span><span class="no">Logger</span><span class="p">.</span><span class="nf">new</span><span class="p">(</span><span class="no">File</span><span class="p">.</span><span class="nf">open</span><span class="p">(</span><span class="s1">'/dev/null'</span><span class="p">,</span> <span class="s1">'w'</span><span class="p">),</span> <span class="no">Merb</span><span class="p">.</span><span class="nf">logger</span><span class="p">.</span><span class="nf">level</span><span class="p">)</span>
+<span class="k">end</span>
+</pre>
+<p>I to by było na tyle jeśli chodzi o kolorowanie logów w konsoli. Smacznego ;)
+W następnych odcinkach m.in. <a href="http://teamon.eu/2008/10/31/merb-flash/">flash</a>, <code>String#t</code>, <code>error_messages_for</code> i prostsze formularze.</p>
+
+<p>* Jakiś powód musiałem wymyślić :P</p>
+</div></article><div class="page-header"><h2>Comments</h2></div><div class="alert alert-info">Please comment at the <a href="http://teamon.jogger.pl/2008/10/31/merb-kolorowy-logger">original post</a>.</div><ul class="pager"><li class="next"><a href="/2008/screenshot-calej-strony-quicksilver-i-growl">Older post →</a></li><li class="previous"><a href="/2008/pobieranie-listy-plikow-z-dropboxa">← Newer post</a></li></ul></div><footer><div class="container"><div class="page-header"></div><div class="row"><div class="col-md-12"><ul class="list-unstyled"><li class="pull-right"><a href="#top">Back to top ↑</a></li><li><a href="/">Blog</a></li><li><a href="/about.html">About</a></li><li><a href="/projects.html">Projects</a></li><li><a href="/talks.html">Talks</a></li><li>|</li><li><a href="http://github.com/teamon">GitHub</a></li><li><a href="http://twitter.com/iteamon">Twitter</a></li><li><a href="http://monterail.com">Monterail</a></li><li><a href="http://codetunes.com">Codetunes</a></li></ul></div></div><div class="row"><div class="col-md-12"><p>Copyright 2007-2014 &mdash; Tymon Tobolski <br />Based on <a href="http://bootswatch.com/lumen/">Lumen Bootswatch</a>. Web fonts from <a href="http://www.google.com/webfonts">Google</a>. </p></div></div></div></footer></body></html>

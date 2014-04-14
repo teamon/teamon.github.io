@@ -1,0 +1,201 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible" /><title>Introduction to building APIs with Grape</title><link href="http://fonts.googleapis.com/css?family=Droid+Sans:400,700|Bitter:400,700,400italic|Open+Sans:300italic,400italic,700italic,400,300,700" media="screen" rel="stylesheet" type="text/css" /><link href="../assets/stylesheets/all-f5ec2720.css" media="screen" rel="stylesheet" type="text/css" /><script src="../assets/javascripts/all-eca7008a.js" type="text/javascript"></script></head><body class="x2014 x2014_introduction-to-building-apis-with-grape"><div class="navbar navbar-default"><div class="navbar-collapse collapse navbar-responsive-collapse"><div class="container"><ul class="nav navbar-nav"><li><a class="navbar-brand" href="/">Blog</a></li><li><a class="navbar-brand" href="/about.html">About</a></li><li><a class="navbar-brand" href="/projects.html">Projects</a></li><li><a class="navbar-brand" href="/talks.html">Talks</a></li></ul></div></div></div><div class="container"><article class="post"><div class="page-header"><div class="row"><div class="col-md-10"><h1>Introduction to building APIs with Grape</h1></div><div class="col-md-2 post-date"><time datetime="2014-01-15">Jan 15, 2014</time></div></div></div><div class="alert alert-info">This article was originally
+<a href="http://codetunes.com/2014/introduction-to-building-apis-with-grape/">published at Codetunes</a>.</div><div class="lead"><p>As <a href="http://codetunes.com/2013/we-re-angularjs-developers/">we at Monterail are no longer just a Rails shop</a>, our projects have grown in size presenting us with an array of new challenges. All the Single Page Applications we code need reliable APIs versioning to work properly. Some of the bigger apps that we manage, built with Service Oriented Architecture pattern, demand a scalable way for our software to communicate between various components.</p>
+
+<p>New challenges demand new solutions — we’d like to share one with you that has worked well for us.</p>
+
+<p>You might think that it&rsquo;s difficult to code APIs that are simple to maintain and honestly, we thought so too. However, as some of us have recently discovered, an excellent tool already exists to solve this problem.</p>
+
+<p>It&rsquo;s called <a href="https://github.com/intridea/Grape">Grape</a>.</p>
+
+<p>If you haven&rsquo;t heard of it, Grape is a REST-based framework for building APIs in Ruby that was designed to run on Rack as well as to fit into existing Rails or Sinatra applications. The article below, which is the first of four that we&rsquo;re planning, is a summary of our experiences using Grape for our projects. When we started using Grape there were no clear guidelines for how to get everything up and running, so we had to simplify the process and solve the problem on our own. After getting our hands a little dirty, we came up with the instructions laid out below that show how we think Grape is best approached.</p>
+
+<p>To begin, install Grape as a gem in your application. As you probably suspect, to do so you&rsquo;ll simply need to put this code in your Gemfile:</p>
+<pre class="highlight ruby"><span class="c1"># Gemfile</span>
+<span class="n">gem</span> <span class="s2">"grape"</span>
+</pre>
+<h1>Structuring code for API versioning</h1>
+
+<p>The goal is simple — we want to have the API version that we need in the path:</p>
+<pre class="highlight plaintext">/api/v1/hussars.json - API version 1
+/api/v2/hussars.json - API version 2
+</pre>
+<p>This is a pretty standard and failsafe way of API versioning and while it is possible to do this with Grape, the solution is not as straightforward as you may think.</p>
+
+<p>We also want to have all API-related codebase under the <code>API</code> module, as well as different versions in their own submodules <code>API::V1</code> and <code>API::V2</code>.</p>
+
+<p>Let&rsquo;s start at the deepest level of the code: the actual &ldquo;controller&rdquo;:</p>
+<pre class="highlight ruby"><span class="c1"># app/controllers/api/v1/hussars.rb</span>
+<span class="k">module</span> <span class="nn">API</span>
+  <span class="k">module</span> <span class="nn">V1</span>
+    <span class="k">class</span> <span class="nc">Hussars</span> <span class="o">&lt;</span> <span class="no">Grape</span><span class="o">::</span><span class="no">API</span>
+      <span class="n">version</span> <span class="s1">'v1'</span> <span class="c1"># path-based versioning by default</span>
+      <span class="nb">format</span> <span class="ss">:json</span> <span class="c1"># We don't like xml anymore</span>
+
+      <span class="n">resource</span> <span class="ss">:hussars</span> <span class="k">do</span>
+        <span class="n">desc</span> <span class="s2">"Return list of hussars"</span>
+        <span class="n">get</span> <span class="k">do</span>
+          <span class="no">Hussar</span><span class="p">.</span><span class="nf">all</span> <span class="c1"># obviously you never want to call #all here</span>
+        <span class="k">end</span>
+      <span class="k">end</span>
+    <span class="k">end</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+</pre>
+<p>The code above shows a very simple Grape resource whose path ends with <code>/v1/hussars.json</code>.</p>
+
+<p>Let&rsquo;s assume we have some other resources like these:</p>
+
+<ul>
+<li><code>/v1/wings.json</code> as <code>API::V1::Wings</code> in <code>app/controllers/api/v1/wings.rb</code></li>
+<li><code>/v2/hussars.json</code> as <code>API::V2::Hussars</code> in <code>app/controllers/api/v2/hussars.rb</code></li>
+</ul>
+
+<p>Now, for each API version we need an aggregate class that mounts all of its resources:</p>
+<pre class="highlight ruby"><span class="c1"># app/controllers/api/v1/base.rb</span>
+<span class="k">module</span> <span class="nn">API</span>
+  <span class="k">module</span> <span class="nn">V1</span>
+    <span class="k">class</span> <span class="nc">Base</span> <span class="o">&lt;</span> <span class="no">Grape</span><span class="o">::</span><span class="no">API</span>
+      <span class="n">mount</span> <span class="no">API</span><span class="o">::</span><span class="no">V1</span><span class="o">::</span><span class="no">Hussars</span>
+      <span class="n">mount</span> <span class="no">API</span><span class="o">::</span><span class="no">V1</span><span class="o">::</span><span class="no">Wings</span>
+    <span class="k">end</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+</pre>
+<p>The same goes for <code>app/controllers/api/v2/base.rb</code>.</p>
+
+<p>We also need one more class that will aggregate all API versions:</p>
+<pre class="highlight ruby"><span class="c1"># app/controllers/api/base.rb</span>
+<span class="k">module</span> <span class="nn">API</span>
+  <span class="k">class</span> <span class="nc">Base</span> <span class="o">&lt;</span> <span class="no">Grape</span><span class="o">::</span><span class="no">API</span>
+    <span class="n">mount</span> <span class="no">API</span><span class="o">::</span><span class="no">V1</span><span class="o">::</span><span class="no">Base</span>
+    <span class="n">mount</span> <span class="no">API</span><span class="o">::</span><span class="no">V2</span><span class="o">::</span><span class="no">Base</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+</pre>
+<p>Finally, we can mount <code>API::Base</code> in <code>routes.rb</code>.</p>
+<pre class="highlight ruby"><span class="c1"># config/routes.rb</span>
+<span class="no">Monterail</span><span class="o">::</span><span class="no">Application</span><span class="p">.</span><span class="nf">routes</span><span class="p">.</span><span class="nf">draw</span> <span class="k">do</span>
+  <span class="c1"># ...</span>
+  <span class="n">mount</span> <span class="no">API</span><span class="o">::</span><span class="no">Base</span> <span class="o">=&gt;</span> <span class="s1">'/api'</span>
+  <span class="c1"># ...</span>
+<span class="k">end</span>
+</pre>
+<p>This way we get routing like this:</p>
+<pre class="highlight plaintext">/api/v1/hussars.json  -&gt; API::V1::Hussars
+/api/v1/wings.json    -&gt; API::V1::Wings
+/api/v2/hussars.json  -&gt; API::V2::Hussars
+</pre>
+<p>To sum up this section, the file structure should look as follows:</p>
+<pre class="highlight plaintext">app/
+  controllers/
+    api/
+      v1/
+        hussars.rb      - API::V1::Hussars
+        wings.rb        - API::V1::Wings
+        base.rb         - API::V1::Base
+      v2/
+        hussars.rb      - API::V2::Hussars
+        base.rb         - API::V2::Base
+      base.rb           - API::Base
+</pre>
+<p>This may seem like a few too many classes for such a simple case, but as you&rsquo;ll see in the next section, taking this extra step will pay off pretty quickly.</p>
+
+<h1>Reusable components</h1>
+
+<p>If you take a closer look at the <code>API::V1::Hussars</code> class, you will notice this:</p>
+<pre class="highlight ruby"><span class="n">version</span> <span class="s1">'v1'</span>
+<span class="nb">format</span> <span class="ss">:json</span>
+</pre>
+<p>Due to the way Grape works, a variant of this definition needs to be in every class that inherits and defines any resources from <code>Grape::API</code>. Having multiple classes in your code, however, can result in code duplication and the possibility of mismatching resources.</p>
+
+<p>The clearest solution is to use a shared module that may look like this:</p>
+<pre class="highlight ruby"><span class="c1"># app/controllers/api/v1/defaults.rb</span>
+<span class="k">module</span> <span class="nn">API</span>
+  <span class="k">module</span> <span class="nn">V1</span>
+    <span class="k">module</span> <span class="nn">Defaults</span>
+      <span class="c1"># if you're using Grape outside of Rails, you'll have to use Module#included hook</span>
+      <span class="kp">extend</span> <span class="no">ActiveSupport</span><span class="o">::</span><span class="no">Concern</span>
+
+      <span class="n">included</span> <span class="k">do</span>
+        <span class="c1"># common Grape settings</span>
+        <span class="n">version</span> <span class="s1">'v1'</span>
+        <span class="nb">format</span> <span class="ss">:json</span>
+
+        <span class="c1"># global handler for simple not found case</span>
+        <span class="n">rescue_from</span> <span class="no">ActiveRecord</span><span class="o">::</span><span class="no">RecordNotFound</span> <span class="k">do</span> <span class="o">|</span><span class="n">e</span><span class="o">|</span>
+          <span class="n">error_response</span><span class="p">(</span><span class="ss">message: </span><span class="n">e</span><span class="p">.</span><span class="nf">message</span><span class="p">,</span> <span class="ss">status: </span><span class="mi">404</span><span class="p">)</span>
+        <span class="k">end</span>
+
+        <span class="c1"># global exception handler, used for error notifications</span>
+        <span class="n">rescue_from</span> <span class="ss">:all</span> <span class="k">do</span> <span class="o">|</span><span class="n">e</span><span class="o">|</span>
+          <span class="k">if</span> <span class="no">Rails</span><span class="p">.</span><span class="nf">env</span><span class="p">.</span><span class="nf">development?</span>
+            <span class="k">raise</span> <span class="n">e</span>
+          <span class="k">else</span>
+            <span class="no">Raven</span><span class="p">.</span><span class="nf">capture_exception</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+            <span class="n">error_response</span><span class="p">(</span><span class="ss">message: </span><span class="s2">"Internal server error"</span><span class="p">,</span> <span class="ss">status: </span><span class="mi">500</span><span class="p">)</span>
+          <span class="k">end</span>
+        <span class="k">end</span>
+
+        <span class="c1"># HTTP header based authentication</span>
+        <span class="n">before</span> <span class="k">do</span>
+          <span class="n">error!</span><span class="p">(</span><span class="s1">'Unauthorized'</span><span class="p">,</span> <span class="mi">401</span><span class="p">)</span> <span class="k">unless</span> <span class="n">headers</span><span class="o">[</span><span class="s1">'Authorization'</span><span class="o">]</span> <span class="o">==</span> <span class="s2">"some token"</span>
+        <span class="k">end</span>
+      <span class="k">end</span>
+    <span class="k">end</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+</pre>
+<p>Then simply include the shared module in the resource module:</p>
+<pre class="highlight ruby"><span class="c1"># app/controllers/api/v1/hussars.rb</span>
+<span class="k">module</span> <span class="nn">API</span>
+  <span class="k">module</span> <span class="nn">V1</span>
+    <span class="k">class</span> <span class="nc">Hussars</span> <span class="o">&lt;</span> <span class="no">Grape</span><span class="o">::</span><span class="no">API</span>
+      <span class="kp">include</span> <span class="no">API</span><span class="o">::</span><span class="no">V1</span><span class="o">::</span><span class="no">Defaults</span>
+      <span class="c1"># ...</span>
+    <span class="k">end</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+</pre>
+<p>Think of it as your APIs <code>application_controller.rb</code>; all the reusable components should go inside this shared module. At Monterail, we also use this pattern to support different authorization methods for different scopes in the application, a common example being when we deal with admins and casual users.</p>
+
+<h1>Swagger integration</h1>
+
+<p><a href="http://swagger.wordnik.com/">Swagger</a> is a great way of documenting an API that allows you to produce, visualize, and consume your very own RESTful services. Surprisingly, implementing Swagger only requires some HTML5 and a lot of JavaScript, so you can run it virtually anywhere. Integrating Swagger with Grape will make your workflow easier because your API will be documented completely, right out of the box! How cool is that?</p>
+
+<p>To use Swagger in your Rails application, add <code>grape-swagger</code> gem to <code>Gemfile</code>:</p>
+<pre class="highlight ruby"><span class="c1"># Gemfile</span>
+<span class="n">gem</span> <span class="s1">'grape-swagger'</span>
+</pre>
+<p>Then add one line to the <code>API::V1::Base</code> module:</p>
+<pre class="highlight ruby"><span class="c1"># app/controllers/api/v1/base.rb</span>
+<span class="k">module</span> <span class="nn">API</span>
+  <span class="k">module</span> <span class="nn">V1</span>
+    <span class="k">class</span> <span class="nc">Base</span> <span class="o">&lt;</span> <span class="no">Grape</span><span class="o">::</span><span class="no">API</span>
+      <span class="c1"># ...</span>
+      <span class="n">add_swagger_documentation</span> <span class="ss">base_path: </span><span class="s2">"/api"</span><span class="p">,</span>
+                                <span class="ss">api_version: </span><span class="s1">'v1'</span><span class="p">,</span>
+                                <span class="ss">hide_documentation_path: </span><span class="kp">true</span>
+    <span class="k">end</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+</pre>
+<p>Finally, you’ll need to download and configure <a href="https://github.com/wordnik/swagger-ui">Swagger UI</a>. To do this, copy <code>dist</code> directory to <code>public/api/docs</code>.</p>
+
+<p>To make Swagger UI work with grape-swagger gem we need to put <code>/api/swagger_doc.json</code> as <code>url</code> in <code>public/api/docs/index.html</code> file at line 22:</p>
+<pre class="highlight javascript"><span class="c1">// public/api/docs/index.html
+</span><span class="mi">21</span><span class="p">.</span>      <span class="nb">window</span><span class="p">.</span><span class="nx">swaggerUi</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">SwaggerUi</span><span class="p">({</span>
+<span class="mi">22</span><span class="p">.</span>      <span class="nl">url</span><span class="p">:</span> <span class="s2">"/api/swagger_doc.json"</span><span class="p">,</span>      <span class="c1">// &lt;---- HERE
+</span><span class="mi">23</span><span class="p">.</span>      <span class="nl">dom_id</span><span class="p">:</span> <span class="s2">"swagger-ui-container"</span><span class="p">,</span>
+</pre>
+<p>After you do this you&rsquo;ll be able to visit <code>http://localhost:3000/api/docs</code> and test out your API directly from the browser. Feel free to try it anytime; it&rsquo;s a really great way to debug your application.</p>
+
+<h1>Summary</h1>
+
+<p>That&rsquo;s it for now, folks.</p>
+
+<p>As you can see, Grape is a tremendously powerful tool that&rsquo;s easy to learn and implement into your workflow, especially when it’s combined with Swagger, ROAR or Her. We want to save some stuff for you to read in future posts though, so we&rsquo;ll hold off on discussing those topics until later. As we mentioned in the introduction, we&rsquo;re going to publish a handful of posts detailing everything that we&rsquo;ve learned about Grape. For now, we can tell you that the next post in this series will focus on how you can enhance your API. We’ll follow up that article by taking you on an insightful journey into the world of API caching. So stayed tuned — it’ll be quite a trip!</p>
+
+<p>We&rsquo;re always keen to know what you think about the solutions that we provide here on Codetunes. Did you find this introduction to Grape useful? Has it changed the way that you think about APIs in Rails applications? (If so, we&rsquo;re extremely happy, because that’s why we’re publishing this series.) Or maybe you&rsquo;re convinced that you can figure out a better solution than ours? If so, prove it!</p>
+
+<p>We&rsquo;d love to hear your feedback.</p>
+</div></article><div class="page-header"><h2>Comments</h2></div><div class="alert alert-info">Please comment at the <a href="http://codetunes.com/2014/introduction-to-building-apis-with-grape/">original post</a>.</div><ul class="pager"><li class="next"><a href="/2012/kill-sbt-forked-jvm">Older post →</a></li></ul></div><footer><div class="container"><div class="page-header"></div><div class="row"><div class="col-md-12"><ul class="list-unstyled"><li class="pull-right"><a href="#top">Back to top ↑</a></li><li><a href="/">Blog</a></li><li><a href="/about.html">About</a></li><li><a href="/projects.html">Projects</a></li><li><a href="/talks.html">Talks</a></li><li>|</li><li><a href="http://github.com/teamon">GitHub</a></li><li><a href="http://twitter.com/iteamon">Twitter</a></li><li><a href="http://monterail.com">Monterail</a></li><li><a href="http://codetunes.com">Codetunes</a></li></ul></div></div><div class="row"><div class="col-md-12"><p>Copyright 2007-2014 &mdash; Tymon Tobolski <br />Based on <a href="http://bootswatch.com/lumen/">Lumen Bootswatch</a>. Web fonts from <a href="http://www.google.com/webfonts">Google</a>. </p></div></div></div></footer></body></html>

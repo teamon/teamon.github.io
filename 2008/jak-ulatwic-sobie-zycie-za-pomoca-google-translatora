@@ -1,0 +1,54 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible" /><title>Jak ułatwić sobie życie za pomocą google translatora</title><link href="http://fonts.googleapis.com/css?family=Droid+Sans:400,700|Bitter:400,700,400italic|Open+Sans:300italic,400italic,700italic,400,300,700" media="screen" rel="stylesheet" type="text/css" /><link href="../assets/stylesheets/all-f5ec2720.css" media="screen" rel="stylesheet" type="text/css" /><script src="../assets/javascripts/all-eca7008a.js" type="text/javascript"></script></head><body class="x2008 x2008_jak-ulatwic-sobie-zycie-za-pomoca-google-translatora"><div class="navbar navbar-default"><div class="navbar-collapse collapse navbar-responsive-collapse"><div class="container"><ul class="nav navbar-nav"><li><a class="navbar-brand" href="/">Blog</a></li><li><a class="navbar-brand" href="/about.html">About</a></li><li><a class="navbar-brand" href="/projects.html">Projects</a></li><li><a class="navbar-brand" href="/talks.html">Talks</a></li></ul></div></div></div><div class="container"><article class="post"><div class="page-header"><div class="row"><div class="col-md-10"><h1>Jak ułatwić sobie życie za pomocą google translatora</h1></div><div class="col-md-2 post-date"><time datetime="2008-06-18">Jun 18, 2008</time></div></div></div><div class="alert alert-info">This article is written in Polish and was originally
+<a href="http://teamon.jogger.pl/2008/06/18/jak-ulatwic-sobie-zycie-za-pomoca-google-translatora">published at Jogger</a>.</div><div class="lead"><p>Napisałem sobie aplikacje w <a href="http://rubyonrails.pl">RoR</a> z użyciem gettext ( <a href="http://manuals.rubyonrails.org/read/chapter/105">how to</a>). Wygenerowałem pliki <code>.po</code> i&hellip; no właśnie, ktoś to musi przetłumaczyć. Wpadłem na dwa pomysły: a) znaleźć frajera, który to zrobi za free, b) zrobić to samemu.</p>
+
+<p>Nie znalazłem nikogo, a że leniwy jestem to od razu zacząłem kombinować jakby tu sobie ułatwić/przyspieszyć pracę. Padło na <a href="http://translate.google.com/translate_t">google translator</a>. Rozejrzałem się za API ale nic ciekawego nie znalazłem (jedynie to, że można użyć GET i wszystkie parametry podać w urlu). Pozostało tylko przefiltrować plik .po, odpytać wielkie G, wyciągnąć przetłumaczoną frazę i zapisać w pliku.</p>
+
+<p>A tak to wygląda:</p>
+<pre class="highlight ruby">
+<span class="c1">#!/opt/local/bin/ruby</span>
+
+<span class="nb">require</span> <span class="s2">"net/http"</span>
+<span class="nb">require</span> <span class="s2">"iconv"</span>
+
+<span class="vg">$KCODE</span> <span class="o">=</span> <span class="s1">'utf8'</span>
+
+<span class="c1"># ustawienie języków i kodowania</span>
+<span class="n">lang_from</span> <span class="o">=</span> <span class="s2">"en"</span>
+<span class="n">lang_to</span> <span class="o">=</span> <span class="s2">"pl"</span>
+<span class="n">enc</span> <span class="o">=</span> <span class="s2">"latin2"</span> <span class="c1"># latin2 zwraca translator dla en|pl</span>
+
+<span class="c1"># wygodny jestem :P</span>
+<span class="k">class</span> <span class="nc">String</span>
+  <span class="k">def</span> <span class="nf">iconv</span><span class="p">(</span><span class="n">to</span><span class="p">,</span> <span class="n">from</span><span class="p">)</span>
+    <span class="no">Iconv</span><span class="p">.</span><span class="nf">iconv</span><span class="p">(</span><span class="n">to</span><span class="p">,</span> <span class="n">from</span><span class="p">,</span> <span class="nb">self</span><span class="p">)</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+
+<span class="c1"># czytamy plik</span>
+<span class="n">file</span> <span class="o">=</span> <span class="no">File</span><span class="p">.</span><span class="nf">read</span><span class="p">(</span><span class="no">ARGV</span><span class="o">[</span><span class="mi">0</span><span class="o">]</span><span class="p">)</span>
+
+<span class="c1"># mały regexp ...</span>
+<span class="n">f</span> <span class="o">=</span> <span class="n">file</span><span class="p">.</span><span class="nf">gsub</span><span class="p">(</span><span class="sr">/msgid "(.+?)"\nmsgstr "(.*?)"/</span><span class="p">)</span> <span class="k">do</span> <span class="o">|</span><span class="n">m</span><span class="o">|</span>
+  <span class="c1"># tłumaczenie jest puste</span>
+  <span class="k">if</span> <span class="vg">$2</span> <span class="o">==</span> <span class="s2">""</span>
+    <span class="nb">id</span><span class="p">,</span> <span class="n">str</span> <span class="o">=</span> <span class="vg">$1</span><span class="p">,</span> <span class="s2">""</span>
+    <span class="c1"># pobranie przetłumaczonej wersji</span>
+    <span class="no">Net</span><span class="o">::</span><span class="no">HTTP</span><span class="p">.</span><span class="nf">get</span><span class="p">(</span><span class="s2">"www.google.com"</span><span class="p">,</span> <span class="s2">"/translate_t?hl=en&amp;ie=UTF8&amp;text=</span><span class="si">#{</span><span class="nb">id</span><span class="p">.</span><span class="nf">gsub</span><span class="p">(</span><span class="s2">" "</span><span class="p">,</span> <span class="s2">"%20"</span><span class="p">)</span><span class="si">}</span><span class="s2">&amp;langpair=</span><span class="si">#{</span><span class="n">lang_from</span><span class="si">}</span><span class="s2">|</span><span class="si">#{</span><span class="n">lang_to</span><span class="si">}</span><span class="s2">"</span><span class="p">).</span><span class="nf">iconv</span><span class="p">(</span><span class="s2">"utf8"</span><span class="p">,</span> <span class="n">enc</span><span class="p">).</span><span class="nf">first</span><span class="p">.</span><span class="nf">scan</span><span class="p">(</span><span class="sr">/&lt;div id=result_box dir="ltr"&gt;(.+?)&lt;\/div&gt;/m</span><span class="p">)</span> <span class="k">do</span> <span class="o">|</span><span class="n">e</span><span class="o">|</span>
+      <span class="n">str</span> <span class="o">=</span> <span class="n">e</span><span class="p">.</span><span class="nf">first</span><span class="p">.</span><span class="nf">gsub</span><span class="p">(</span><span class="s2">" | "</span><span class="p">,</span> <span class="s2">"|"</span><span class="p">)</span> <span class="c1"># dla "Xxx|Yyy" translator zwraca "Xxx | Yyy"</span>
+      <span class="nb">puts</span> <span class="s2">"</span><span class="si">#{</span><span class="nb">id</span><span class="si">}</span><span class="s2"> =&gt; </span><span class="si">#{</span><span class="n">str</span><span class="si">}</span><span class="s2">"</span>
+    <span class="k">end</span>
+    <span class="s2">"msgid </span><span class="se">\"</span><span class="si">#{</span><span class="nb">id</span><span class="si">}</span><span class="se">\"\n</span><span class="s2">msgstr </span><span class="se">\"</span><span class="si">#{</span><span class="n">str</span><span class="si">}</span><span class="se">\"</span><span class="s2">"</span>
+  <span class="k">else</span>
+  <span class="c1"># jeśli już jest tłumaczenie to zostawiamy w spokoju</span>
+    <span class="n">m</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+
+<span class="c1"># zapisanie do pliku</span>
+<span class="no">File</span><span class="p">.</span><span class="nf">new</span><span class="p">(</span><span class="no">ARGV</span><span class="o">[</span><span class="mi">0</span><span class="o">]</span><span class="p">,</span> <span class="s2">"w"</span><span class="p">).</span><span class="nf">puts</span> <span class="n">f</span>
+</pre>
+<p>a potem:</p>
+<pre class="highlight shell"><span class="gp">$ </span>./google_t.rb /path/to/myapp/po/pl_PL/myapp.po
+</pre>
+<p>I już. Wiadomo, tłumaczenie nie jest idealne, ale w prostych przypadkach się sprawdza (poszczegołne słowa). Pliki wypada przejrzeć jeszcze np. <a href="http://www.poedit.net/">poEdit`em</a> w celu poprawienia błędów. Przynajmniej można się trochę pośmiać ;)</p>
+</div></article><div class="page-header"><h2>Comments</h2></div><div class="alert alert-info">Please comment at the <a href="http://teamon.jogger.pl/2008/06/18/jak-ulatwic-sobie-zycie-za-pomoca-google-translatora">original post</a>.</div><ul class="pager"><li class="next"><a href="/2008/ie6png-fix-tool">Older post →</a></li><li class="previous"><a href="/2008/pastie-os-x-dashboard-widget">← Newer post</a></li></ul></div><footer><div class="container"><div class="page-header"></div><div class="row"><div class="col-md-12"><ul class="list-unstyled"><li class="pull-right"><a href="#top">Back to top ↑</a></li><li><a href="/">Blog</a></li><li><a href="/about.html">About</a></li><li><a href="/projects.html">Projects</a></li><li><a href="/talks.html">Talks</a></li><li>|</li><li><a href="http://github.com/teamon">GitHub</a></li><li><a href="http://twitter.com/iteamon">Twitter</a></li><li><a href="http://monterail.com">Monterail</a></li><li><a href="http://codetunes.com">Codetunes</a></li></ul></div></div><div class="row"><div class="col-md-12"><p>Copyright 2007-2014 &mdash; Tymon Tobolski <br />Based on <a href="http://bootswatch.com/lumen/">Lumen Bootswatch</a>. Web fonts from <a href="http://www.google.com/webfonts">Google</a>. </p></div></div></div></footer></body></html>

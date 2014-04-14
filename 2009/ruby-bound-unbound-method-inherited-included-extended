@@ -1,0 +1,157 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible" /><title>Ruby - bound/unbound method, inherited, included, extended</title><link href="http://fonts.googleapis.com/css?family=Droid+Sans:400,700|Bitter:400,700,400italic|Open+Sans:300italic,400italic,700italic,400,300,700" media="screen" rel="stylesheet" type="text/css" /><link href="../assets/stylesheets/all-f5ec2720.css" media="screen" rel="stylesheet" type="text/css" /><script src="../assets/javascripts/all-eca7008a.js" type="text/javascript"></script></head><body class="x2009 x2009_ruby-bound-unbound-method-inherited-included-extended"><div class="navbar navbar-default"><div class="navbar-collapse collapse navbar-responsive-collapse"><div class="container"><ul class="nav navbar-nav"><li><a class="navbar-brand" href="/">Blog</a></li><li><a class="navbar-brand" href="/about.html">About</a></li><li><a class="navbar-brand" href="/projects.html">Projects</a></li><li><a class="navbar-brand" href="/talks.html">Talks</a></li></ul></div></div></div><div class="container"><article class="post"><div class="page-header"><div class="row"><div class="col-md-10"><h1>Ruby - bound/unbound method, inherited, included, extended</h1></div><div class="col-md-2 post-date"><time datetime="2009-06-03">Jun  3, 2009</time></div></div></div><div class="alert alert-info">This article is written in Polish and was originally
+<a href="http://teamon.jogger.pl/2009/06/03/ruby-bound-unbound-method-inherited-included-extended">published at Jogger</a>.</div><div class="lead"><h3>Bound i unbound method</h3>
+
+<p>Ruby pozwala na &ldquo;wyciągnięcie&rdquo; pojedynczej metody z obiektu w postaci obiektu <code>Method</code>, który można później wywołać. Ruby dostarcza dwa rodzaje metod - <code>Method</code> oraz <code>UnboundMethod</code>. Podstawową różnicą między tymi dwoma jest to, że <code>Method</code> możemy wywołać, a <code>UnboundMethod</code> nie. Spowodowane jest to tym, iż obiekt <code>UnboundMethod</code> nie ma zadeklarowanego odbiorcy metody. Obiekt <code>UnboundMethod</code> można oczywiście &ldquo;przypiąć&rdquo; do odpowiedniego obiektu, ale o tym za chwilę.</p>
+
+<p>Na początek prosty przykład.</p>
+<pre class="highlight ruby"><span class="k">class</span> <span class="nc">Timmy</span>
+  <span class="kp">attr_accessor</span> <span class="ss">:age</span>
+
+  <span class="k">def</span> <span class="nf">say</span>
+    <span class="s2">"Timmy!"</span>
+  <span class="k">end</span>
+
+  <span class="k">def</span> <span class="nf">move</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+    <span class="s2">"Moved </span><span class="si">#{</span><span class="n">x</span><span class="si">}</span><span class="s2"> meters"</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+
+<span class="n">timmy</span> <span class="o">=</span> <span class="no">Timmy</span><span class="p">.</span><span class="nf">new</span>
+
+<span class="n">say_method</span> <span class="o">=</span> <span class="n">timmy</span><span class="p">.</span><span class="nf">method</span><span class="p">(</span><span class="ss">:say</span><span class="p">)</span> <span class="c1"># =&gt; #&lt;Method: Timmy#say&gt;</span>
+<span class="n">move_method</span> <span class="o">=</span> <span class="n">timmy</span><span class="p">.</span><span class="nf">method</span><span class="p">(</span><span class="ss">:move</span><span class="p">)</span> <span class="c1"># =&gt; #&lt;Method: Timmy#move&gt;</span>
+</pre>
+<p>Metoda <code>method(sym)</code> jest zdefiniowana w klasie <code>Object</code> i dostępna we wszystkich obiektach. Zwraca obiekt <code>Method</code> z metodą o podanej nazwie. Metoda ma zadeklarowanego odbiorcę, tak więc można ją wykonać. Metody wykonuje się tak samo jak obiekty <code>Proc</code> czyli poprzez <code>call(parametry)</code>.</p>
+<pre class="highlight ruby"><span class="n">say_method</span><span class="p">.</span><span class="nf">call</span> <span class="c1"># =&gt; "Timmy!"</span>
+<span class="n">move_method</span><span class="p">.</span><span class="nf">call</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span> <span class="c1"># =&gt; "Moved 4 meters"</span>
+</pre>
+<p>Taki obiekt metody można &ldquo;odczepić&rdquo; od odbiorcy:</p>
+<pre class="highlight ruby"><span class="n">unbound_say</span> <span class="o">=</span> <span class="n">say_method</span><span class="p">.</span><span class="nf">unbind</span> <span class="c1"># =&gt; #&lt;UnboundMethod: Timmy#say&gt;</span>
+</pre>
+<p>Tak &ldquo;odczepionej&rdquo; metody nie można już wywołać:</p>
+<pre class="highlight ruby"><span class="n">unbound_say</span><span class="p">.</span><span class="nf">call</span>
+<span class="no">NoMethodError</span><span class="p">:</span> <span class="n">undefined</span> <span class="nb">method</span> <span class="sb">`call' for #&lt;UnboundMethod: Timmy#say&gt;
+  from (irb):30
+</span></pre>
+<p>Innym sposobem na uzyskanie obiektu <code>UnboundMethod</code> jest pobranie metody proste z klasy.</p>
+<pre class="highlight ruby"><span class="n">unbound_method</span> <span class="o">=</span> <span class="no">Timmy</span><span class="p">.</span><span class="nf">instance_method</span><span class="p">(</span><span class="ss">:say</span><span class="p">)</span>
+<span class="c1"># =&gt; #&lt;UnboundMethod: Timmy#say&gt;</span>
+</pre>
+<p>Taki obiekt można teraz &ldquo;przypiąć&rdquo; do odpowiedniego obiektu:</p>
+<pre class="highlight ruby"><span class="n">tim</span> <span class="o">=</span> <span class="no">Timmy</span><span class="p">.</span><span class="nf">new</span>
+<span class="n">unbound_method</span><span class="p">.</span><span class="nf">bind</span><span class="p">(</span><span class="n">tim</span><span class="p">)</span> <span class="c1"># =&gt; #&lt;Method: Timmy#say&gt;</span>
+</pre>
+<p>Jednak przypinanie metody z klasy do obiektu tej samej klasy ma trochę mały sens. Jednak można to wykorzystać na przykład w celu wywołania metody nadnadklasy: </p></p>
+<pre class="highlight ruby"><span class="k">class</span> <span class="nc">Person</span>
+  <span class="k">def</span> <span class="nf">say</span>
+    <span class="s2">"HELLO"</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+
+<span class="k">class</span> <span class="nc">Kid</span> <span class="o">&lt;</span> <span class="no">Person</span>
+  <span class="k">def</span> <span class="nf">say</span>
+    <span class="s2">"Hi"</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+
+<span class="k">class</span> <span class="nc">Jimmy</span> <span class="o">&lt;</span> <span class="no">Kid</span>
+  <span class="k">def</span> <span class="nf">say</span>
+    <span class="s2">"Jimmy!"</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+
+<span class="n">jim</span> <span class="o">=</span> <span class="no">Jimmy</span><span class="p">.</span><span class="nf">new</span>
+<span class="n">jim</span><span class="p">.</span><span class="nf">say</span> <span class="c1"># =&gt; "Jimmy!"</span>
+<span class="n">jim</span><span class="p">.</span><span class="nf">class</span><span class="p">.</span><span class="nf">superclass</span><span class="p">.</span><span class="nf">superclass</span><span class="p">.</span><span class="nf">instance_method</span><span class="p">(</span><span class="ss">:say</span><span class="p">).</span><span class="nf">bind</span><span class="p">(</span><span class="n">jim</span><span class="p">).</span><span class="nf">call</span>
+<span class="c1"># =&gt; "HELLO"</span>
+</pre>
+<h3>included, extended, inherited</h3>
+
+<p>Metody <code>included</code>, <code>extended</code> oraz <code>inherited</code> są (jak można się domyślić) wywoływane kiedy korzystamy z <code>include</code>, <code>extend</code> albo dziedziczenia.</p>
+
+<p>Kiedy dziedziczymy po jakiejś klasie, wywoływana jest na niej metoda <code>inherited</code> (o ile została zadeklarowana):</p>
+<pre class="highlight ruby"><span class="k">class</span> <span class="nc">Car</span>
+  <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">inherited</span><span class="p">(</span><span class="n">base</span><span class="p">)</span>
+    <span class="nb">puts</span> <span class="s2">"</span><span class="si">#{</span><span class="n">base</span><span class="si">}</span><span class="s2"> inherits from Car"</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+
+<span class="k">class</span> <span class="nc">Mercedes</span> <span class="o">&lt;</span> <span class="no">Car</span><span class="p">;</span> <span class="k">end</span>
+<span class="k">class</span> <span class="nc">Audi</span> <span class="o">&lt;</span> <span class="no">Car</span><span class="p">;</span> <span class="k">end</span>
+<span class="k">class</span> <span class="nc">BMW</span> <span class="o">&lt;</span> <span class="no">Car</span><span class="p">;</span> <span class="k">end</span>
+
+<span class="c1"># &gt;&gt; Mercedes inherits from Car</span>
+<span class="c1"># &gt;&gt; Audi inherits from Car</span>
+<span class="c1"># &gt;&gt; BMW inherits from Car</span>
+</pre>
+<p>Daje to większe możliwości operacji na klasach pochodnych i pozwala na wykonanie dodatkowych operacji.</p>
+
+<p>Kolejną i chyba najczęściej wykorzystywaną metodą jest <code>included</code>. Metoda ta dotyczy modułu, który jest &ldquo;includowany&rdquo;. Dzięki temu zamiast pisać:</p>
+<pre class="highlight ruby"><span class="k">class</span> <span class="nc">Audi</span>
+  <span class="kp">include</span> <span class="no">Fast</span><span class="o">::</span><span class="no">InstanceMethods</span>
+  <span class="kp">extend</span> <span class="no">Fast</span><span class="o">::</span><span class="no">ClassMethods</span>
+<span class="k">end</span>
+</pre>
+<p>można to uprościć do zapisu:</p>
+<pre class="highlight ruby"><span class="k">class</span> <span class="nc">Audi</span>
+  <span class="kp">include</span> <span class="no">Fast</span>
+<span class="k">end</span>
+</pre>
+<p>a całą resztę pozostawić modułowi:</p>
+<pre class="highlight ruby"><span class="k">module</span> <span class="nn">Fast</span>
+  <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">included</span><span class="p">(</span><span class="n">base</span><span class="p">)</span>
+    <span class="nb">puts</span> <span class="s2">"</span><span class="si">#{</span><span class="n">base</span><span class="si">}</span><span class="s2"> includes Fast"</span>
+    <span class="n">base</span><span class="p">.</span><span class="nf">send</span><span class="p">(</span><span class="ss">:include</span><span class="p">,</span> <span class="no">InstanceMethods</span><span class="p">)</span>
+    <span class="n">base</span><span class="p">.</span><span class="nf">extend</span><span class="p">(</span><span class="no">ClassMethods</span><span class="p">)</span>
+  <span class="k">end</span>
+
+  <span class="k">module</span> <span class="nn">InstanceMethods</span>
+    <span class="k">def</span> <span class="nf">go</span>
+      <span class="s2">"Goooooo </span><span class="si">#{</span><span class="nb">self</span><span class="si">}</span><span class="s2">"</span>
+    <span class="k">end</span>
+  <span class="k">end</span>
+
+  <span class="k">module</span> <span class="nn">ClassMethods</span>
+    <span class="k">def</span> <span class="nf">describe</span>
+      <span class="s2">"I`m </span><span class="si">#{</span><span class="nb">self</span><span class="si">}</span><span class="s2">"</span>
+    <span class="k">end</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+
+<span class="k">class</span> <span class="nc">Audi</span>
+  <span class="kp">include</span> <span class="no">Fast</span>
+<span class="k">end</span>
+
+<span class="k">class</span> <span class="nc">BMW</span>
+  <span class="kp">include</span> <span class="no">Fast</span>
+<span class="k">end</span>
+
+<span class="c1"># &gt;&gt; Audi includes Fast</span>
+<span class="c1"># &gt;&gt; BMW includes Fast</span>
+
+<span class="no">Audi</span><span class="p">.</span><span class="nf">describe</span> <span class="c1"># =&gt; "I`m Audi"</span>
+<span class="no">BMW</span><span class="p">.</span><span class="nf">describe</span> <span class="c1"># =&gt; "I`m BMW"</span>
+<span class="no">Audi</span><span class="p">.</span><span class="nf">new</span><span class="p">.</span><span class="nf">go</span> <span class="c1"># =&gt; "Goooooo #&lt;0x241bc&gt;"</span>
+<span class="no">BMW</span><span class="p">.</span><span class="nf">new</span><span class="p">.</span><span class="nf">go</span> <span class="c1"># =&gt; "Goooooo #&lt;0x24090&gt;"</span>
+</pre>
+<p>Ostatnią metodą jest <code>extended</code>, która jest praktycznie identyczna w działaniu jak <code>included</code> z tym że jest wywoływana podczas użycia <code>extend</code>:</p>
+<pre class="highlight ruby"><span class="k">module</span> <span class="nn">Slow</span>
+  <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">extended</span><span class="p">(</span><span class="n">base</span><span class="p">)</span>
+    <span class="nb">puts</span> <span class="s2">"Slow extends </span><span class="si">#{</span><span class="n">base</span><span class="si">}</span><span class="s2">"</span>
+  <span class="k">end</span>
+
+  <span class="k">def</span> <span class="nf">describe</span>
+    <span class="s2">"I`m slow </span><span class="si">#{</span><span class="nb">self</span><span class="si">}</span><span class="s2">"</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+
+<span class="k">class</span> <span class="nc">Mercedes</span>
+  <span class="kp">extend</span> <span class="no">Slow</span>
+<span class="k">end</span>
+
+<span class="c1"># &gt;&gt; Slow extends Mercedes</span>
+
+<span class="no">Mercedes</span><span class="p">.</span><span class="nf">describe</span> <span class="c1"># =&gt; "I`m slow Mercedes"</span>
+</pre>
+<p>Zarówno <code>inherited</code> jak i <code>included</code> są często wykorzystywane w przeróżnych bibliotekach. Przewagą dołączania modułu nad korzystaniem z dziedziczenia jest to, że moduł możną dołączyć praktycznie zawsze, podczas gdy ustawienie nadklasy nie zawsze jest możliwe.</p>
+</div></article><div class="page-header"><h2>Comments</h2></div><div class="alert alert-info">Please comment at the <a href="http://teamon.jogger.pl/2009/06/03/ruby-bound-unbound-method-inherited-included-extended">original post</a>.</div><ul class="pager"><li class="next"><a href="/2009/rubber-wersja-testowa">Older post →</a></li><li class="previous"><a href="/2009/merb-db4o">← Newer post</a></li></ul></div><footer><div class="container"><div class="page-header"></div><div class="row"><div class="col-md-12"><ul class="list-unstyled"><li class="pull-right"><a href="#top">Back to top ↑</a></li><li><a href="/">Blog</a></li><li><a href="/about.html">About</a></li><li><a href="/projects.html">Projects</a></li><li><a href="/talks.html">Talks</a></li><li>|</li><li><a href="http://github.com/teamon">GitHub</a></li><li><a href="http://twitter.com/iteamon">Twitter</a></li><li><a href="http://monterail.com">Monterail</a></li><li><a href="http://codetunes.com">Codetunes</a></li></ul></div></div><div class="row"><div class="col-md-12"><p>Copyright 2007-2014 &mdash; Tymon Tobolski <br />Based on <a href="http://bootswatch.com/lumen/">Lumen Bootswatch</a>. Web fonts from <a href="http://www.google.com/webfonts">Google</a>. </p></div></div></div></footer></body></html>

@@ -1,0 +1,159 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible" /><title>Ruby - ! poprzez method_missing</title><link href="http://fonts.googleapis.com/css?family=Droid+Sans:400,700|Bitter:400,700,400italic|Open+Sans:300italic,400italic,700italic,400,300,700" media="screen" rel="stylesheet" type="text/css" /><link href="../assets/stylesheets/all-f5ec2720.css" media="screen" rel="stylesheet" type="text/css" /><script src="../assets/javascripts/all-eca7008a.js" type="text/javascript"></script></head><body class="x2009 x2009_ruby-poprzez-method-missing"><div class="navbar navbar-default"><div class="navbar-collapse collapse navbar-responsive-collapse"><div class="container"><ul class="nav navbar-nav"><li><a class="navbar-brand" href="/">Blog</a></li><li><a class="navbar-brand" href="/about.html">About</a></li><li><a class="navbar-brand" href="/projects.html">Projects</a></li><li><a class="navbar-brand" href="/talks.html">Talks</a></li></ul></div></div></div><div class="container"><article class="post"><div class="page-header"><div class="row"><div class="col-md-10"><h1>Ruby - ! poprzez method_missing</h1></div><div class="col-md-2 post-date"><time datetime="2009-05-07">May  7, 2009</time></div></div></div><div class="alert alert-info">This article is written in Polish and was originally
+<a href="http://teamon.jogger.pl/2009/05/07/ruby-poprzez-method-missing">published at Jogger</a>.</div><div class="lead"><p>Dla tych co nie wiedzą co to <code>method_missing</code> i co chodzi z <code>!</code> polecam posty na blogu radarka:
+<a href="http://radarek.jogger.pl/2009/02/21/ruby-a-metody-z-i-w-nazwie/">Ruby a metody z &lsquo;?&rsquo; i &lsquo;!&rsquo; w nazwie</a> oraz
+<a href="http://radarek.jogger.pl/2008/03/26/method-missing-w-rubym-nie-pomin-niczego/">method_missing w Rubym - nie pomiń niczego!</a></p>
+
+<p>Załóżmy, że piszemy bibliotekę dodającą sporo metod do klasy String i chcielibyśmy żeby każda metoda miała swój odpowiednik zakończony <code>!</code>.</p>
+
+<p>Można to zrobić w taki sposób:</p>
+<pre class="highlight ruby"><span class="k">class</span> <span class="nc">String</span>
+  <span class="k">def</span> <span class="nf">plural</span>
+    <span class="nb">self</span> <span class="o">!~</span> <span class="sr">/s$/</span> <span class="p">?</span> <span class="nb">self</span> <span class="o">+</span> <span class="s2">"s"</span> <span class="p">:</span> <span class="nb">self</span> <span class="c1"># tylko dla przykładu</span>
+  <span class="k">end</span>
+
+  <span class="k">def</span> <span class="nf">plural!</span>
+    <span class="nb">self</span><span class="p">.</span><span class="nf">replace</span><span class="p">(</span><span class="n">plural</span><span class="p">)</span>
+  <span class="k">end</span>
+
+  <span class="k">def</span> <span class="nf">foo</span>
+    <span class="p">.</span><span class="nf">.</span><span class="o">.</span>
+  <span class="k">end</span>
+
+  <span class="k">def</span> <span class="nf">foo!</span>
+    <span class="nb">self</span><span class="p">.</span><span class="nf">replace</span><span class="p">(</span><span class="n">foo</span><span class="p">)</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+</pre>
+<p>Ale jest to co najmniej średnio wygodne.</p>
+
+<p>Z pomocą przychodzi <code>method_missing</code>. W bardzo łatwy sposób można zdefiniować regułę, która wyłapie odwołanie do nieistniejącej metody zakończonej <code>!</code>.</p>
+<pre class="highlight ruby"><span class="k">class</span> <span class="nc">String</span>
+  <span class="c1"># dla przykładu, to nie jest idealna implementacja :P</span>
+  <span class="k">def</span> <span class="nf">plural</span>
+    <span class="nb">self</span> <span class="o">!~</span> <span class="sr">/s$/</span> <span class="p">?</span> <span class="nb">self</span> <span class="o">+</span> <span class="s2">"s"</span> <span class="p">:</span> <span class="nb">self</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+
+<span class="k">class</span> <span class="nc">String</span>
+  <span class="k">def</span> <span class="nf">method_missing</span><span class="p">(</span><span class="nb">method</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">block</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">method</span><span class="p">.</span><span class="nf">to_s</span> <span class="o">=~</span> <span class="sr">/(.+)!$/</span> <span class="o">&amp;&amp;</span> <span class="nb">respond_to?</span><span class="p">(</span><span class="vg">$1</span><span class="p">)</span>
+      <span class="nb">self</span><span class="p">.</span><span class="nf">class</span><span class="p">.</span><span class="nf">class_eval</span> <span class="o">&lt;&lt;-</span><span class="no">EOF</span><span class="sh">
+        def </span><span class="si">#{</span><span class="nb">method</span><span class="si">}</span><span class="sh">(*args, &amp;block)
+          replace send(:</span><span class="si">#{</span><span class="vg">$1</span><span class="si">}</span><span class="sh">, *args, &amp;block)
+        end
+</span><span class="no">      EOF</span>
+      <span class="nb">self</span><span class="p">.</span><span class="nf">send</span><span class="p">(</span><span class="nb">method</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">block</span><span class="p">)</span>
+    <span class="k">else</span>
+      <span class="k">super</span>
+    <span class="k">end</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+
+<span class="n">c</span> <span class="o">=</span> <span class="s2">"cat"</span>
+<span class="n">c</span><span class="p">.</span><span class="nf">plural</span> <span class="c1"># =&gt; "cats"</span>
+<span class="n">c</span> <span class="c1"># =&gt; "cat"</span>
+<span class="n">c</span><span class="p">.</span><span class="nf">plural!</span> <span class="c1"># =&gt; "cats"</span>
+<span class="n">c</span> <span class="c1"># =&gt; "cats"</span>
+
+<span class="n">d</span> <span class="o">=</span> <span class="s2">"dog"</span>
+<span class="n">d</span><span class="p">.</span><span class="nf">plural!</span> <span class="c1"># =&gt; "dogs"</span>
+<span class="n">d</span> <span class="c1"># =&gt; "dogs"</span>
+</pre>
+<p>W tym przykładzie <code>method_missing</code> sprawdza czy jest dostępna metoda <code>plural</code>, a następnie definiuje metode <code>plural!</code>. Niektórzy pewnie zapytają: &ldquo;a co robi tam ten eval? po co to?&rdquo;.
+Już wyjaśniam.
+Poprzez zdefiniowanie methody <code>plural!</code> gdy następnym razem wywołamy <code>c.plural!</code> metoda <code>method_missing</code> nie zostanie wywołana, ponieważ metoda <code>plural!</code> już istnieje. No tak, ale to przecież bez różnicy, działa tak samo, prawda? Okazuje się, że jednak jest różnica&hellip;</p>
+
+<p>Prosty benchmark wszystko dobitnie pokazuje:</p>
+<pre class="highlight ruby"><span class="nb">require</span> <span class="s1">'benchmark'</span>
+
+<span class="k">class</span> <span class="nc">String</span>
+  <span class="k">def</span> <span class="nf">plural</span>
+    <span class="nb">self</span> <span class="o">!~</span> <span class="sr">/s$/</span> <span class="p">?</span> <span class="nb">self</span> <span class="o">+</span> <span class="s2">"s"</span> <span class="p">:</span> <span class="nb">self</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+
+<span class="no">Benchmark</span><span class="p">.</span><span class="nf">bm</span> <span class="k">do</span> <span class="o">|</span><span class="n">b</span><span class="o">|</span>
+  <span class="n">n</span> <span class="o">=</span> <span class="mi">1000000</span>
+  <span class="n">b</span><span class="p">.</span><span class="nf">report</span><span class="p">(</span><span class="s2">"defined plural!"</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">class</span> <span class="nc">String</span>
+      <span class="k">def</span> <span class="nf">plural!</span>
+        <span class="n">replace</span> <span class="n">plural</span>
+      <span class="k">end</span>
+    <span class="k">end</span>
+
+    <span class="n">s</span> <span class="o">=</span> <span class="s2">"cat"</span>
+    <span class="n">n</span><span class="p">.</span><span class="nf">times</span> <span class="p">{</span> <span class="n">s</span><span class="p">.</span><span class="nf">plural!</span> <span class="p">}</span>
+  <span class="p">}</span>
+
+  <span class="no">String</span><span class="p">.</span><span class="nf">send</span><span class="p">(</span><span class="ss">:undef_method</span><span class="p">,</span> <span class="ss">:plural!</span><span class="p">)</span>
+
+  <span class="n">b</span><span class="p">.</span><span class="nf">report</span><span class="p">(</span><span class="s2">"not defining"</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">class</span> <span class="nc">String</span>
+      <span class="k">def</span> <span class="nf">method_missing</span><span class="p">(</span><span class="nb">method</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">block</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">method</span><span class="p">.</span><span class="nf">to_s</span> <span class="o">=~</span> <span class="sr">/(.+)!$/</span> <span class="o">&amp;&amp;</span> <span class="nb">respond_to?</span><span class="p">(</span><span class="vg">$1</span><span class="p">)</span>
+          <span class="n">replace</span> <span class="nb">send</span><span class="p">(</span><span class="vg">$1</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">block</span><span class="p">)</span>
+        <span class="k">else</span>
+          <span class="k">super</span>
+        <span class="k">end</span>
+      <span class="k">end</span>
+    <span class="k">end</span>
+
+    <span class="n">s</span> <span class="o">=</span> <span class="s2">"cat"</span>
+    <span class="n">n</span><span class="p">.</span><span class="nf">times</span> <span class="p">{</span> <span class="n">s</span><span class="p">.</span><span class="nf">plural!</span> <span class="p">}</span>
+  <span class="p">}</span>
+
+  <span class="n">b</span><span class="p">.</span><span class="nf">report</span><span class="p">(</span><span class="s2">"defining"</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">class</span> <span class="nc">String</span>
+      <span class="k">def</span> <span class="nf">method_missing</span><span class="p">(</span><span class="nb">method</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">block</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">method</span><span class="p">.</span><span class="nf">to_s</span> <span class="o">=~</span> <span class="sr">/(.+)!$/</span> <span class="o">&amp;&amp;</span> <span class="nb">respond_to?</span><span class="p">(</span><span class="vg">$1</span><span class="p">)</span>
+          <span class="nb">self</span><span class="p">.</span><span class="nf">class</span><span class="p">.</span><span class="nf">class_eval</span> <span class="o">&lt;&lt;-</span><span class="no">EOF</span><span class="sh">
+            def </span><span class="si">#{</span><span class="nb">method</span><span class="si">}</span><span class="sh">(*args, &amp;block)
+              replace send(:</span><span class="si">#{</span><span class="vg">$1</span><span class="si">}</span><span class="sh">, *args, &amp;block)
+            end
+</span><span class="no">          EOF</span>
+          <span class="nb">self</span><span class="p">.</span><span class="nf">send</span><span class="p">(</span><span class="nb">method</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">block</span><span class="p">)</span>
+        <span class="k">else</span>
+          <span class="k">super</span>
+        <span class="k">end</span>
+      <span class="k">end</span>
+    <span class="k">end</span>
+
+    <span class="n">s</span> <span class="o">=</span> <span class="s2">"cat"</span>
+    <span class="n">n</span><span class="p">.</span><span class="nf">times</span> <span class="p">{</span> <span class="n">s</span><span class="p">.</span><span class="nf">plural!</span> <span class="p">}</span>
+  <span class="p">}</span>
+<span class="k">end</span>
+</pre>
+<p>A oto wyniki:</p>
+<pre class="highlight shell"><span class="o">[</span>teamon ~/Desktop] ruby1.9 str_bench.rb
+                  user      system    total     real
+defined plural!   2.280000  0.010000  2.290000  <span class="o">(</span> 2.311500<span class="o">)</span>
+method_missing    6.140000  0.030000  6.170000  <span class="o">(</span> 6.215187<span class="o">)</span>
+combo             2.450000  0.020000  2.470000  <span class="o">(</span> 2.492664<span class="o">)</span>
+
+<span class="o">[</span>teamon ~/Desktop] ruby str_bench.rb
+                  user      system    total     real
+defined plural!   1.710000  0.010000  1.720000  <span class="o">(</span> 1.734700<span class="o">)</span>
+method_missing    6.060000  0.020000  6.080000  <span class="o">(</span> 6.137054<span class="o">)</span>
+combo             2.700000  0.010000  2.710000  <span class="o">(</span> 2.737030<span class="o">)</span>
+
+<span class="o">[</span>teamon ~/Desktop] jruby str_bench.rb
+                  user      system    total     real
+defined plural!   1.229000  0.000000  1.229000  <span class="o">(</span> 1.203000<span class="o">)</span>
+method_missing    5.874000  0.000000  5.874000  <span class="o">(</span> 5.874000<span class="o">)</span>
+combo             1.723000  0.000000  1.723000  <span class="o">(</span> 1.724000<span class="o">)</span>
+
+
+<span class="c"># jakby co:</span>
+<span class="o">[</span>teamon ~/Desktop] ruby -v
+ruby 1.8.6 <span class="o">(</span>2008-03-03 patchlevel 114<span class="o">)</span> <span class="o">[</span>universal-darwin9.0]
+
+<span class="o">[</span>teamon ~/Desktop] ruby1.9 -v
+ruby 1.9.1p0 <span class="o">(</span>2009-01-30 revision 21907<span class="o">)</span> <span class="o">[</span>i386-darwin9.6.0]
+
+<span class="o">[</span>teamon ~/Desktop] jruby -v
+jruby 1.2.0 <span class="o">(</span>ruby 1.8.6 patchlevel 287<span class="o">)</span> <span class="o">(</span>2009-03-31 rev 6586<span class="o">)</span> <span class="o">[</span>i386-java]
+</pre>
+<p>Jak widać dla ruby1.9 i jruby różnica między zdefiniowaniem &ldquo;na sztywno&rdquo; <code>plural!</code> jest niewielka (dla 1.8.6 jest już trochę więcej). Łatwo jednak zauważyć, że używanie samego <code>method_missing</code> bez definiowania metody znacznie odstaje wydajnościowo.</p>
+
+<p>Swoją drogą trochę mnie dziwi, że 1.9 okazuje się wolniejsze od 1.8.6.</p>
+</div></article><div class="page-header"><h2>Comments</h2></div><div class="alert alert-info">Please comment at the <a href="http://teamon.jogger.pl/2009/05/07/ruby-poprzez-method-missing">original post</a>.</div><ul class="pager"><li class="next"><a href="/2009/jruby-merb-sequel">Older post →</a></li><li class="previous"><a href="/2009/rubber-wersja-testowa">← Newer post</a></li></ul></div><footer><div class="container"><div class="page-header"></div><div class="row"><div class="col-md-12"><ul class="list-unstyled"><li class="pull-right"><a href="#top">Back to top ↑</a></li><li><a href="/">Blog</a></li><li><a href="/about.html">About</a></li><li><a href="/projects.html">Projects</a></li><li><a href="/talks.html">Talks</a></li><li>|</li><li><a href="http://github.com/teamon">GitHub</a></li><li><a href="http://twitter.com/iteamon">Twitter</a></li><li><a href="http://monterail.com">Monterail</a></li><li><a href="http://codetunes.com">Codetunes</a></li></ul></div></div><div class="row"><div class="col-md-12"><p>Copyright 2007-2014 &mdash; Tymon Tobolski <br />Based on <a href="http://bootswatch.com/lumen/">Lumen Bootswatch</a>. Web fonts from <a href="http://www.google.com/webfonts">Google</a>. </p></div></div></div></footer></body></html>

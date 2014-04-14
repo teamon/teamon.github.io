@@ -1,0 +1,55 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible" /><title>rubber - wersja testowa</title><link href="http://fonts.googleapis.com/css?family=Droid+Sans:400,700|Bitter:400,700,400italic|Open+Sans:300italic,400italic,700italic,400,300,700" media="screen" rel="stylesheet" type="text/css" /><link href="../assets/stylesheets/all-f5ec2720.css" media="screen" rel="stylesheet" type="text/css" /><script src="../assets/javascripts/all-eca7008a.js" type="text/javascript"></script></head><body class="x2009 x2009_rubber-wersja-testowa"><div class="navbar navbar-default"><div class="navbar-collapse collapse navbar-responsive-collapse"><div class="container"><ul class="nav navbar-nav"><li><a class="navbar-brand" href="/">Blog</a></li><li><a class="navbar-brand" href="/about.html">About</a></li><li><a class="navbar-brand" href="/projects.html">Projects</a></li><li><a class="navbar-brand" href="/talks.html">Talks</a></li></ul></div></div></div><div class="container"><article class="post"><div class="page-header"><div class="row"><div class="col-md-10"><h1>rubber - wersja testowa</h1></div><div class="col-md-2 post-date"><time datetime="2009-05-29">May 29, 2009</time></div></div></div><div class="alert alert-info">This article is written in Polish and was originally
+<a href="http://teamon.jogger.pl/2009/05/29/rubber-wersja-testowa">published at Jogger</a>.</div><div class="lead"><p>Czyli edytor szablonów Joggera i menadżer plików z wbudowanym serwerem.</p>
+
+<h4>Lista ficzerów:</h4>
+
+<ul>
+<li>Dodawanie, usuwanie plików z folderu <code>files</code></li>
+<li>Edycja szablonów wpisów, komentarzy, logowania</li>
+<li>Edycja szablonów stron</li>
+<li>Serwer upakowujący szablony w przykładową treść - nie ma potrzeby męczenia się w panelu Joggera żeby sprawdzić jak coś będzie wyglądać.</li>
+<li>Podgląd nowego wpisu</li>
+</ul>
+
+<h4>Wymagania</h4>
+
+<p>Jedynym wymaganiem do uruchomienia programu jest zainstalowany interpreter <a href="http://ruby-lang.org">Ruby</a></p>
+
+<p>W chwili obecnej zaimplementowana jest większość tagów szablonowych, które są opisane na Wiki. Poniżej krótki opis użycia.</p>
+
+<h3>Instalacja i konfiguracja</h3>
+
+<p>Instalacja sprowadza się do zainstalowania gema z githuba</p>
+<pre class="highlight shell">gem sources -a http://gems.github.com
+sudo gem install teamon-rubber
+</pre>
+<p>Ustawienie loginu i hasła (hasło jest przechowywane w zakodowanej formie)</p>
+<pre class="highlight shell">mkdir my_jogger
+<span class="nb">cd </span>my_jogger
+rubber configure
+</pre>
+<h3>Zarządzanie plikami</h3>
+
+<h4>Pobranie plików z Joggera</h4>
+<pre class="highlight shell">rubber download
+</pre>
+<h4>Wysłanie zmodyfikowanych plików</h4>
+<pre class="highlight shell">rubber upload files/my_file.html
+rubber upload Szablon_koemntarzy.html
+</pre>
+<h4>Wysłanie wszystkich plików</h4>
+<pre class="highlight shell">rubber upload files/<span class="k">*</span>
+</pre>
+<h3>Uruchomienie serwera</h3>
+<pre class="highlight shell">rubber server
+</pre>
+<p>Twój jogger będzie dostępny pod adresem <a href="http://localhost:1337">http://localhost:1337</a>. Przykładowe treści można zmienić w pliku <code>content.yml</code>. Zmiana w pliku szablonu będzie od razu widoczna po odświeżeniu przeglądarki (nie ma potrzeby restartowania serwera).</p>
+
+<h3>Podgląd nowego wpisu</h3>
+
+<p>Dodając plik do folderu posty o nazwie np. <code>nowy-post.html</code> będzie on dostępny pod adresem <a href="http://localhost:1337/nowy%20post">http://localhost:1337/nowy%20post</a></p>
+
+<p>Wszelkie propozycje i uwagi są bardzo mile widziane.</p>
+
+<p>Kod oczywiście dostępny na <a href="http://github.com/teamon/rubber">githubie</a></p>
+</div></article><div class="page-header"><h2>Comments</h2></div><div class="alert alert-info">Please comment at the <a href="http://teamon.jogger.pl/2009/05/29/rubber-wersja-testowa">original post</a>.</div><ul class="pager"><li class="next"><a href="/2009/ruby-poprzez-method-missing">Older post →</a></li><li class="previous"><a href="/2009/ruby-bound-unbound-method-inherited-included-extended">← Newer post</a></li></ul></div><footer><div class="container"><div class="page-header"></div><div class="row"><div class="col-md-12"><ul class="list-unstyled"><li class="pull-right"><a href="#top">Back to top ↑</a></li><li><a href="/">Blog</a></li><li><a href="/about.html">About</a></li><li><a href="/projects.html">Projects</a></li><li><a href="/talks.html">Talks</a></li><li>|</li><li><a href="http://github.com/teamon">GitHub</a></li><li><a href="http://twitter.com/iteamon">Twitter</a></li><li><a href="http://monterail.com">Monterail</a></li><li><a href="http://codetunes.com">Codetunes</a></li></ul></div></div><div class="row"><div class="col-md-12"><p>Copyright 2007-2014 &mdash; Tymon Tobolski <br />Based on <a href="http://bootswatch.com/lumen/">Lumen Bootswatch</a>. Web fonts from <a href="http://www.google.com/webfonts">Google</a>. </p></div></div></div></footer></body></html>

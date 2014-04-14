@@ -1,0 +1,49 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible" /><title>Pobieranie listy plików z DropBoxa</title><link href="http://fonts.googleapis.com/css?family=Droid+Sans:400,700|Bitter:400,700,400italic|Open+Sans:300italic,400italic,700italic,400,300,700" media="screen" rel="stylesheet" type="text/css" /><link href="../assets/stylesheets/all-f5ec2720.css" media="screen" rel="stylesheet" type="text/css" /><script src="../assets/javascripts/all-eca7008a.js" type="text/javascript"></script></head><body class="x2008 x2008_pobieranie-listy-plikow-z-dropboxa"><div class="navbar navbar-default"><div class="navbar-collapse collapse navbar-responsive-collapse"><div class="container"><ul class="nav navbar-nav"><li><a class="navbar-brand" href="/">Blog</a></li><li><a class="navbar-brand" href="/about.html">About</a></li><li><a class="navbar-brand" href="/projects.html">Projects</a></li><li><a class="navbar-brand" href="/talks.html">Talks</a></li></ul></div></div></div><div class="container"><article class="post"><div class="page-header"><div class="row"><div class="col-md-10"><h1>Pobieranie listy plików z DropBoxa</h1></div><div class="col-md-2 post-date"><time datetime="2008-11-19">Nov 19, 2008</time></div></div></div><div class="alert alert-info">This article is written in Polish and was originally
+<a href="http://teamon.jogger.pl/2008/11/19/pobieranie-listy-plikow-z-dropboxa">published at Jogger</a>.</div><div class="lead"><p>Tym razem mała odskocznia od Merba, ale nadal w klimatach Ruby.</p>
+
+<p>Jeśli ktoś nie słyszał, <a href="http://getdropbox.com">Dropbox</a> to usługa która pozwala trzymać pliki na serwerze poprzez utworzenie specjalnego folderu w systemie i używanie go jak każdego innego. Dropbox sam uaktualni pliki na serwerze. Ponadto umożliwia synchronizacje plików na kilku komputerach oraz współdzielenie folderów. Więcej na <a href="http://getdropbox.com">stronie programu</a>.</p>
+
+<p>Wszystko pięknie, ale Dropbox ma jedna wadę. Możemy podać komuś link do pliku (z folderu Public) ale do całego folderu już nie. Autorzy twierdzą, że to ze względów bezpieczeństwa - ich sprawa. Nie udostępnili też żadnego API (np. z wymaganym kluczem czy coś).</p>
+
+<p>Z pomocą przychodzi dostępny ajaxowy &ldquo;Web Interface&rdquo; i <a href="http://mechanize.rubyforge.org/">Mechanize</a>. Plan jest całkiem prosty: zalogować się i pobrać listę plików dla podanej ścieżki.</p>
+
+<p>Dość gadania, kodzik:</p>
+<pre class="highlight ruby"><span class="nb">require</span> <span class="s2">"rubygems"</span>
+<span class="nb">require</span> <span class="s2">"mechanize"</span>
+
+<span class="k">class</span> <span class="nc">Dropbox</span>
+  <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="n">email</span><span class="p">,</span> <span class="n">password</span><span class="p">)</span>
+    <span class="vi">@agent</span> <span class="o">=</span> <span class="no">WWW</span><span class="o">::</span><span class="no">Mechanize</span><span class="p">.</span><span class="nf">new</span>
+    <span class="n">page</span> <span class="o">=</span> <span class="vi">@agent</span><span class="p">.</span><span class="nf">get</span><span class="p">(</span><span class="s1">'https://www.getdropbox.com/'</span><span class="p">)</span>
+    <span class="n">form</span> <span class="o">=</span> <span class="n">page</span><span class="p">.</span><span class="nf">forms</span><span class="p">.</span><span class="nf">first</span>
+    <span class="n">form</span><span class="p">.</span><span class="nf">email</span> <span class="o">=</span> <span class="n">email</span>
+    <span class="n">form</span><span class="p">.</span><span class="nf">password</span> <span class="o">=</span> <span class="n">password</span>
+    <span class="vi">@agent</span><span class="p">.</span><span class="nf">submit</span><span class="p">(</span><span class="n">form</span><span class="p">)</span>
+  <span class="k">end</span>
+
+  <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+    <span class="n">links</span> <span class="o">=</span> <span class="o">[]</span>
+    <span class="vi">@agent</span><span class="p">.</span><span class="nf">post</span><span class="p">(</span><span class="s2">"https://getdropbox.com/browse2/</span><span class="si">#{</span><span class="n">path</span><span class="si">}</span><span class="s2">?ajax=yes"</span><span class="p">,</span> <span class="s2">"d=0&amp;mini&amp;t=6bf8f0d91d"</span><span class="p">).</span><span class="nf">links</span><span class="p">.</span><span class="nf">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">link</span><span class="o">|</span>
+      <span class="k">unless</span> <span class="n">link</span><span class="p">.</span><span class="nf">text</span><span class="p">.</span><span class="nf">blank?</span> <span class="n">or</span> <span class="n">link</span><span class="p">.</span><span class="nf">text</span> <span class="o">==</span> <span class="s2">"Parent directory"</span>
+        <span class="n">links</span> <span class="o">&lt;&lt;</span> <span class="k">if</span> <span class="n">link</span><span class="p">.</span><span class="nf">href</span> <span class="o">=~</span> <span class="sr">%r[/browse2/</span><span class="si">#{</span><span class="n">path</span><span class="si">}</span><span class="sr">/.+]</span>
+          <span class="o">[</span><span class="n">link</span><span class="p">.</span><span class="nf">text</span><span class="p">,</span> <span class="n">get</span><span class="p">(</span><span class="n">link</span><span class="p">.</span><span class="nf">href</span><span class="p">.</span><span class="nf">sub</span><span class="p">(</span><span class="s1">'/browse2/'</span><span class="p">,</span> <span class="s1">''</span><span class="p">))</span><span class="o">]</span>
+        <span class="k">else</span>
+          <span class="n">link</span>
+        <span class="k">end</span>
+      <span class="k">end</span>
+    <span class="k">end</span>
+    <span class="n">links</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+</pre>
+<p>A odpalamy to tak:</p>
+<pre class="highlight ruby"><span class="n">dbs</span> <span class="o">=</span> <span class="no">Dropbox</span><span class="p">.</span><span class="nf">new</span><span class="p">(</span><span class="s2">"your@email.com"</span><span class="p">,</span> <span class="s2">"yourpass"</span><span class="p">)</span>
+<span class="n">links</span> <span class="o">=</span> <span class="n">dbs</span><span class="p">.</span><span class="nf">get</span> <span class="s2">"Public"</span>
+<span class="n">pp</span> <span class="n">links</span>
+</pre>
+<p>Tablica <code>links</code> zawiera odnośniki do wszystkich plików z danego katalogu. Można teraz wygenerować sobie html`a z linkami, czy wrzucić skrypt na serwer aby lista plików była zawsze aktualna. Można by się jeszcze pobawić w pobranie wszystkich plików i spakowanie do archiwum :) .</p>
+
+<p>Nie jestem tylko pewien parametru <code>t</code>. Można go łatwo podejrzeć za pomocą <a href="http://www.getfirebug.com/">FireBuga</a> po zalogowaniu się na stronie. Za każdym razem był taki sam, możliwe jednak, iż dla innego konta będzie inny.</p>
+
+<p>P.S. Tak teraz patrze, to w sumie szału nie ma, ale jak już napisałem to puszcze może komuś się przyda.</p>
+</div></article><div class="page-header"><h2>Comments</h2></div><div class="alert alert-info">Please comment at the <a href="http://teamon.jogger.pl/2008/11/19/pobieranie-listy-plikow-z-dropboxa">original post</a>.</div><ul class="pager"><li class="next"><a href="/2008/merb-flash">Older post →</a></li><li class="previous"><a href="/2008/merb-cucumber-webrat">← Newer post</a></li></ul></div><footer><div class="container"><div class="page-header"></div><div class="row"><div class="col-md-12"><ul class="list-unstyled"><li class="pull-right"><a href="#top">Back to top ↑</a></li><li><a href="/">Blog</a></li><li><a href="/about.html">About</a></li><li><a href="/projects.html">Projects</a></li><li><a href="/talks.html">Talks</a></li><li>|</li><li><a href="http://github.com/teamon">GitHub</a></li><li><a href="http://twitter.com/iteamon">Twitter</a></li><li><a href="http://monterail.com">Monterail</a></li><li><a href="http://codetunes.com">Codetunes</a></li></ul></div></div><div class="row"><div class="col-md-12"><p>Copyright 2007-2014 &mdash; Tymon Tobolski <br />Based on <a href="http://bootswatch.com/lumen/">Lumen Bootswatch</a>. Web fonts from <a href="http://www.google.com/webfonts">Google</a>. </p></div></div></div></footer></body></html>

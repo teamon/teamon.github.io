@@ -1,0 +1,40 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible" /><title>Instalacja Symfony na Mac OS 10.5 (XAMPP)</title><link href="http://fonts.googleapis.com/css?family=Droid+Sans:400,700|Bitter:400,700,400italic|Open+Sans:300italic,400italic,700italic,400,300,700" media="screen" rel="stylesheet" type="text/css" /><link href="../assets/stylesheets/all-f5ec2720.css" media="screen" rel="stylesheet" type="text/css" /><script src="../assets/javascripts/all-eca7008a.js" type="text/javascript"></script></head><body class="x2008 x2008_instalacja-symfony-na-mac-os-10-5-xampp"><div class="navbar navbar-default"><div class="navbar-collapse collapse navbar-responsive-collapse"><div class="container"><ul class="nav navbar-nav"><li><a class="navbar-brand" href="/">Blog</a></li><li><a class="navbar-brand" href="/about.html">About</a></li><li><a class="navbar-brand" href="/projects.html">Projects</a></li><li><a class="navbar-brand" href="/talks.html">Talks</a></li></ul></div></div></div><div class="container"><article class="post"><div class="page-header"><div class="row"><div class="col-md-10"><h1>Instalacja Symfony na Mac OS 10.5 (XAMPP)</h1></div><div class="col-md-2 post-date"><time datetime="2008-01-03">Jan  3, 2008</time></div></div></div><div class="alert alert-info">This article is written in Polish and was originally
+<a href="http://teamon.jogger.pl/2008/01/03/instalacja-symfony-na-mac-os-10-5-xampp">published at Jogger</a>.</div><div class="lead"><p>Tutoriali instalacyjnych symfony jest sporo, ale żaden nie odnosi się do XAMPP&#39;a. Najczęściej jest wykorzystane dostarczony w Leopardem PHP oraz DarvinPorts. Stwierdziłem, że to się może komuś przydać. Jak dla mnie XAMPP jest najlepszą (najwygodniejszą) opcją. Wykorzystam go jako serwer developerski a nie produkcyjny więc nie chce mi się bawić w konfiguracje itp. XAMPP oferuje banalnie prostą instalacje (kreator) - parę klików i gotowe.</p>
+
+<p>Przedstawiony tu opis jest dziełem zebranym po mojej drodze przez fora macplug oraz oficjalne forum symfony (jak sie nie wie to trzeba szukać). Szczególnie przydatny będzie dla tych, co przerzucili się z Windowsa na Maca i nie mają doświadczenia z konsolą unixową (sam do takich należy, ale jak to mówią - człowiek uczy się całe życie). Mój opis jest sprawdzony pod OS X ale możliwe że podobnie należy postąpić na innych platformach.</p>
+
+<p>Wchodzimy na <a href="http://www.apachefriends.org/en/xampp-macosx.html">stronę projektu</a> i ściągamy najnowszą wersję.</p>
+
+<p>Odpalamy instalera, klikamy dalej, dalej, dalej&hellip;</p>
+
+<p>Teraz musimy aktywować domyślnie wyłączone konto root&#39;a. W tym celu odpalamy program <strong>Narzędzia katalogowe</strong> (w OS X &lt; 10.5 NetInfo Manager) i z menu <strong>Edycja</strong> wybieramy <strong>Włącz użytkownika Root</strong>. Teraz musimy ustawić ścieżkę dostępu do plików XAMPP&#39;a. W Terminalu wpisujemy</p>
+<pre class="highlight shell">open .bash_profile
+</pre>
+<p>Jeżeli dostaniemy komunikat, że plik nie istnieje wpisujemy:</p>
+<pre class="highlight shell">touch .bash_profile
+open .bash_profile
+</pre>
+<p>Otworzy się TextEdit. Wpisujemy w nim:</p>
+<pre class="highlight shell"><span class="nv">PATH</span><span class="o">=</span>/Applications/xampp/xamppfiles:/Applications/xampp/xamppfiles/bin:<span class="nv">$PATH</span>
+<span class="nb">export </span>PATH
+</pre>
+<p>Następnie jako root (korzystamy z polecenia <code>su</code>) w Terminalu wpisujemy:</p>
+<pre class="highlight shell">mampp
+</pre>
+<p>Jeżeli wszystko jest ok pokaże nam się lista dostępnych poleceń. Aby uruchomić serwer wpisujemy:</p>
+<pre class="highlight shell">mampp start
+</pre>
+<p>Należy pamiętać, że wszystkie operacje wymagają zalogowania jako root.</p>
+
+<p>Ostatnią czynnością jest edycja pliku <code>httpd.conf</code> (<code>/Applications/xampp/etc/httpd.conf</code>). Zamieniamy linijkę (u mnie na nieedytowanym pliku 227)</p>
+<pre class="highlight shell">AllowOverride AuthConfig
+</pre>
+<p>na:</p>
+<pre class="highlight shell">AllowOverride All
+</pre>
+<p>Bez tego najprawdopodobniej przy próbie uruchomienia projektu symfony dostaniemy error 500</p>
+
+<p>Teraz pozostaje tylko wykonać <a href="http://www.symfony-project.org/installation">instalację Symfony</a> poprzez PEAR</p>
+
+<p>Mam nadzieje, iż powyższy opis jest dość łopatologiczny jednak gdyby ktoś miał problemy to proszę śmiało pisać.</p>
+</div></article><div class="page-header"><h2>Comments</h2></div><div class="alert alert-info">Please comment at the <a href="http://teamon.jogger.pl/2008/01/03/instalacja-symfony-na-mac-os-10-5-xampp">original post</a>.</div><ul class="pager"><li class="previous"><a href="/2008/ie6png-fix-tool">← Newer post</a></li></ul></div><footer><div class="container"><div class="page-header"></div><div class="row"><div class="col-md-12"><ul class="list-unstyled"><li class="pull-right"><a href="#top">Back to top ↑</a></li><li><a href="/">Blog</a></li><li><a href="/about.html">About</a></li><li><a href="/projects.html">Projects</a></li><li><a href="/talks.html">Talks</a></li><li>|</li><li><a href="http://github.com/teamon">GitHub</a></li><li><a href="http://twitter.com/iteamon">Twitter</a></li><li><a href="http://monterail.com">Monterail</a></li><li><a href="http://codetunes.com">Codetunes</a></li></ul></div></div><div class="row"><div class="col-md-12"><p>Copyright 2007-2014 &mdash; Tymon Tobolski <br />Based on <a href="http://bootswatch.com/lumen/">Lumen Bootswatch</a>. Web fonts from <a href="http://www.google.com/webfonts">Google</a>. </p></div></div></div></footer></body></html>

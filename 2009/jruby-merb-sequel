@@ -1,0 +1,213 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible" /><title>JRuby + Merb + Sequel</title><link href="http://fonts.googleapis.com/css?family=Droid+Sans:400,700|Bitter:400,700,400italic|Open+Sans:300italic,400italic,700italic,400,300,700" media="screen" rel="stylesheet" type="text/css" /><link href="../assets/stylesheets/all-f5ec2720.css" media="screen" rel="stylesheet" type="text/css" /><script src="../assets/javascripts/all-eca7008a.js" type="text/javascript"></script></head><body class="x2009 x2009_jruby-merb-sequel"><div class="navbar navbar-default"><div class="navbar-collapse collapse navbar-responsive-collapse"><div class="container"><ul class="nav navbar-nav"><li><a class="navbar-brand" href="/">Blog</a></li><li><a class="navbar-brand" href="/about.html">About</a></li><li><a class="navbar-brand" href="/projects.html">Projects</a></li><li><a class="navbar-brand" href="/talks.html">Talks</a></li></ul></div></div></div><div class="container"><article class="post"><div class="page-header"><div class="row"><div class="col-md-10"><h1>JRuby + Merb + Sequel</h1></div><div class="col-md-2 post-date"><time datetime="2009-04-01">Apr  1, 2009</time></div></div></div><div class="alert alert-info">This article is written in Polish and was originally
+<a href="http://teamon.jogger.pl/2009/04/01/jruby-merb-sequel">published at Jogger</a>.</div><div class="lead"><p>Ktoś pewnie stwierdzi &ldquo;kolejny post o Merbie, bezsensu za chwile i tak się połączy z Rails&rdquo;. Kiedy to nastąpi to jeszcze nie wiadomo, poza tym <a href="http://merbivore.com">Merb</a> aż tak szybko nie zniknie a migracja na Rails3 ma być w miare bezbolesna. Ale ja nie o tym. <a href="http://datamapper.org">DataMapper</a> mnie ostatnio wkurzył, co chwile coś się wywala, coś nie działa. Doszedłem do wniosku, że mam dość. Wybór padł na <a href="http://sequel.rubyforge.org/">Sequela</a>. A skoro Sequel działa pod <a href="http://jruby.codehaus.org">JRuby</a> (w przeciwieństwie do DataMapper) to dlaczego by nie pobawić się też z Javową implementacją Ruby. Z tej mojej zabawy wyszedł ten oto pokrętny mini-tutorial. Enjoy.</p>
+
+<h3>1. Instalacja JRuby</h3>
+
+<p>Instalacja sprowadza się do pobrania źródeł, kompilacji oraz ustawienia ścieżek. Miejsce instalacji (u mnie <code>/Users/teamon/jruby</code>) jest oczywiście dowolne.</p>
+<pre class="highlight shell">curl http://dist.codehaus.org/jruby/1.2.0/jruby-src-1.2.0.tar.gz &gt; jruby.tar.gz
+tar -xf jruby.tar.gz
+<span class="nb">cd </span>jruby-1.2.0
+ant
+<span class="nb">cd</span> ..
+mv jruby-1.2.0 /Users/teamon/jruby
+</pre>
+<p>Ustawienie <code>PATH</code> w <code>~/.bash\_profile</code>:</p>
+<pre class="highlight shell"><span class="nb">export </span><span class="nv">PATH</span><span class="o">=</span><span class="s2">"</span><span class="nv">$PATH</span><span class="s2">:/Users/teamon/jruby/bin"</span>
+</pre>
+<p>Zwróćcie uwagę na to, że ścieżka ma na końcu <code>/bin</code>.</p>
+
+<p>Aby sprawdzić czy wszystko jest ok:</p>
+<pre class="highlight shell"><span class="gp">$ </span>jruby -version
+jruby 1.2.0 <span class="o">(</span>ruby 1.8.6 patchlevel 287<span class="o">)</span> <span class="o">(</span>2009-03-31 rev 6586<span class="o">)</span> <span class="o">[</span>i386-java]
+</pre>
+<p>Działa! (można się pobawić <code>jirbem</code> :P)</p>
+
+<h3>2. Instalacja niezbędnych gemów</h3>
+<pre class="highlight shell">jgem install jruby-openssl <span class="c"># jruby aż się o to prosi, to niech ma ;]</span>
+jgem install merb-core merb-gen merb-haml mongrel <span class="c"># merb i mongrel, thin nie działa pod JRuby</span>
+jgem install sequel merb_sequel postgres-pr
+jgem install webrat <span class="c"># rspec wymaga</span>
+jgem install hpricot --version <span class="s1">'~&gt;0.6.1'</span> <span class="c"># a tego z kolei chce webrat...</span>
+</pre>
+<p>Na razie tyle wystarczy</p>
+
+<h3>3. Wygenerowanie aplikacji</h3>
+
+<p>Korzystamy z <code>merb-gen</code>. Aha, od teraz wszystkie merbowe komendy należy odpalać poprzedzając je <code>jruby -S</code>.</p>
+<pre class="highlight shell">jruby -S merb-gen core --orm<span class="o">=</span>sequel --testing-framework<span class="o">=</span>rspec --template-engine<span class="o">=</span>haml juby
+<span class="nb">cd </span>juby
+</pre>
+<p>Szkielet aplikacji mamy gotowy. Nie użyłem <code>merb-gen app</code>, bo to wrzuca pełno niepotrzebnych rzeczy (np. datamappera).</p>
+
+<p>No, jak już się tyle narobiliśmy to choć coś mogłoby zadziałać. Sprawdźmy!</p>
+<pre class="highlight shell"><span class="gp">$ </span>jruby -S merb
+Loading init file from /Users/teamon/Sites/current/juby/config/init.rb
+Loading /Users/teamon/Sites/current/juby/config/environments/development.rb
+ ~ No database.yml file found at /Users/teamon/Sites/current/juby/config/database.yml.
+ ~ A sample file was created called /Users/teamon/Sites/current/juby/config/database.yml.sample <span class="k">for </span>you to copy and edit.
+</pre>
+<p>No tak, zawsze coś&hellip; Tym razem to tylko informacja o braku pliku <code>database.yml</code>. Wypadałoby to naprawić. Zmieniamy nazwe pliku <code>config/database.yml.sample</code> na <code>config/database.yml</code> a do środka wrzucamy:</p>
+<pre class="highlight yaml"><span class="nn">---</span>
+<span class="c1"># This is a sample database file for the Sequel ORM</span>
+<span class="s">:development</span><span class="pi">:</span> <span class="nl">&amp;amp</span><span class="s">;defaults</span>
+  <span class="s">:adapter</span><span class="pi">:</span> <span class="s">postgres</span>
+  <span class="s">:database</span><span class="pi">:</span> <span class="s">juby_development</span>
+  <span class="s">:username</span><span class="pi">:</span> <span class="s">teamon</span>
+  <span class="s">:password</span><span class="pi">:</span> <span class="s">pass</span>
+  <span class="s">:host</span><span class="pi">:</span> <span class="s">localhost</span>
+  <span class="s">:encoding</span><span class="pi">:</span> <span class="s">utf8</span>
+
+<span class="s">:test</span><span class="pi">:</span>
+  <span class="s">&lt;&lt;</span><span class="pi">:</span> <span class="nv">*defaults</span>
+  <span class="s">:database</span><span class="pi">:</span> <span class="s">juby_test</span>
+
+<span class="s">:production</span><span class="pi">:</span>
+  <span class="s">&lt;&lt;</span><span class="pi">:</span> <span class="nv">*defaults</span>
+  <span class="s">:database</span><span class="pi">:</span> <span class="s">juby_production</span>
+</pre>
+<p>I lepiej od razu stwórzmy bazy:</p>
+<pre class="highlight shell">createdb juby_development
+createdb juby_test
+</pre>
+<p>Odpalamy serwer (<code>jruby -S merb</code>) - działa.</p>
+
+<h3>~~Model~~ <ins>Testy!</h3>
+
+<p>Nie uczyli, że zaczyna się od testów?</p>
+
+<p>Czas na przygotowanie sobie środowiska do testowania. Niestety <code>autospec</code> jak na razie nie działa pod JRuby. No ale jak na razie zwykły <code>spec</code> wystarczy. Aby wszystko działało sprawnie i ładnie trzeba (no, może nie trzeba ale tak będzie lepiej) wrzucić do <code>spec/spec.opts</code>:</p>
+<pre class="highlight yaml"><span class="s">--color</span>
+<span class="s">--format specdoc</span>
+</pre>
+<p>A do <code>spec/spec_helper.rb</code>:</p>
+<pre class="highlight ruby"><span class="no">Spec</span><span class="o">::</span><span class="no">Runner</span><span class="p">.</span><span class="nf">configure</span> <span class="k">do</span> <span class="o">|</span><span class="n">config</span><span class="o">|</span>
+  <span class="n">config</span><span class="p">.</span><span class="nf">include</span><span class="p">(</span><span class="no">Merb</span><span class="o">::</span><span class="no">Test</span><span class="o">::</span><span class="no">ViewHelper</span><span class="p">)</span>
+  <span class="n">config</span><span class="p">.</span><span class="nf">include</span><span class="p">(</span><span class="no">Merb</span><span class="o">::</span><span class="no">Test</span><span class="o">::</span><span class="no">RouteHelper</span><span class="p">)</span>
+  <span class="n">config</span><span class="p">.</span><span class="nf">include</span><span class="p">(</span><span class="no">Merb</span><span class="o">::</span><span class="no">Test</span><span class="o">::</span><span class="no">ControllerHelper</span><span class="p">)</span>
+
+  <span class="n">config</span><span class="p">.</span><span class="nf">before</span><span class="p">(</span><span class="ss">:all</span><span class="p">)</span> <span class="k">do</span>
+    <span class="no">Sequel</span><span class="o">::</span><span class="no">Model</span><span class="p">.</span><span class="nf">db</span><span class="p">.</span><span class="nf">drop_table</span><span class="p">(</span><span class="o">*</span><span class="no">Sequel</span><span class="o">::</span><span class="no">Model</span><span class="p">.</span><span class="nf">db</span><span class="p">.</span><span class="nf">tables</span><span class="p">)</span>
+    <span class="no">Sequel</span><span class="o">::</span><span class="no">Migrator</span><span class="p">.</span><span class="nf">apply</span><span class="p">(</span><span class="no">Sequel</span><span class="o">::</span><span class="no">Model</span><span class="p">.</span><span class="nf">db</span><span class="p">,</span> <span class="s2">"schema/migrations"</span><span class="p">)</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+</pre>
+<p>Pierwsze da nam ładny output w konsoli, a drugie zadba o wyczyszczenie bazy przy każdym uruchomieniu testów.</p>
+
+<p>Przejdźmy teraz do prawdziwych testów. Z lenistwa znowu wykorzystamy <code>merb-gen</code></p>
+<pre class="highlight shell">jruby -S merb-gen model post title:String,permalink:String,content:String,published_at:DateTime
+</pre>
+<p>Dostaliśmy model (<code>app/models/post.rb</code>), migracje (<code>schema/migrations/001_post_migration.rb</code>) i <strong>test</strong> (<code>spec/models/post_spec.rb</code>). Co istotne, podane typy muszą być wpisane wielką literą (tak naprawdę to nazwy klas ruby) ponieważ tak działają migracje w Sequelu (polecam spojrzeć w plik z migracją)</p>
+
+<p>Możemy już teraz odpalić sobie test</p>
+<pre class="highlight shell">jruby -S spec -O spec/spec.opts spec/models/post_spec.rb
+</pre>
+<p>Test się odpala, ale jak na razie nie zawiera żadnego kodu testującego - trzeba to jak najszybciej naprawić!</p>
+
+<p>Otwieramy <code>spec/models/post_spec.rb</code> i wrzucamy:</p>
+<pre class="highlight ruby"><span class="nb">require</span> <span class="no">File</span><span class="p">.</span><span class="nf">join</span><span class="p">(</span> <span class="no">File</span><span class="p">.</span><span class="nf">dirname</span><span class="p">(</span> <span class="kp">__FILE__</span> <span class="p">),</span> <span class="s1">'..'</span><span class="p">,</span> <span class="s2">"spec_helper"</span> <span class="p">)</span>
+
+<span class="n">describe</span> <span class="no">Post</span> <span class="k">do</span>
+
+  <span class="n">before</span> <span class="k">do</span>
+    <span class="no">Post</span><span class="p">.</span><span class="nf">destroy_all</span>
+
+    <span class="vi">@post</span> <span class="o">=</span> <span class="no">Post</span><span class="p">.</span><span class="nf">create</span><span class="p">(</span>
+      <span class="ss">:title</span> <span class="o">=&gt;</span> <span class="s1">'Jruby + Merb + Sequel Tutorial'</span><span class="p">,</span>
+      <span class="ss">:content</span> <span class="o">=&gt;</span> <span class="s1">'Lorem ipsum dolor sit amet, consectetur adipisicing elit.'</span>
+    <span class="p">)</span>
+  <span class="k">end</span>
+
+  <span class="n">it</span> <span class="s2">"should be valid"</span> <span class="k">do</span>
+    <span class="vi">@post</span><span class="p">.</span><span class="nf">should</span> <span class="n">be_valid</span>
+  <span class="k">end</span>
+
+  <span class="n">it</span> <span class="s2">"should require title"</span> <span class="k">do</span>
+    <span class="vi">@post</span><span class="p">.</span><span class="nf">title</span> <span class="o">=</span> <span class="s2">""</span>
+    <span class="vi">@post</span><span class="p">.</span><span class="nf">should_not</span> <span class="n">be_valid</span>
+    <span class="vi">@post</span><span class="p">.</span><span class="nf">errors</span><span class="p">.</span><span class="nf">on</span><span class="p">(</span><span class="ss">:title</span><span class="p">).</span><span class="nf">should_not</span> <span class="n">be_nil</span>
+  <span class="k">end</span>
+
+  <span class="n">it</span> <span class="s2">"should have correct permalink"</span> <span class="k">do</span>
+    <span class="vi">@post</span><span class="p">.</span><span class="nf">permalink</span><span class="p">.</span><span class="nf">should</span> <span class="o">==</span> <span class="s2">"jruby-merb-sequel-tutorial"</span>
+  <span class="k">end</span>
+
+  <span class="n">it</span> <span class="s2">"should have unique permalink"</span> <span class="k">do</span>
+    <span class="n">copy</span> <span class="o">=</span> <span class="no">Post</span><span class="p">.</span><span class="nf">new</span> <span class="ss">:title</span> <span class="o">=&gt;</span> <span class="s1">'Jruby + Merb + Sequel Tutorial'</span><span class="p">,</span> <span class="ss">:content</span> <span class="o">=&gt;</span> <span class="s2">"Lorem ipsum dolor sit amet, consectetur adipisicing elit."</span>
+    <span class="n">copy</span><span class="p">.</span><span class="nf">should_not</span> <span class="n">be_valid</span>
+    <span class="n">copy</span><span class="p">.</span><span class="nf">errors</span><span class="p">.</span><span class="nf">on</span><span class="p">(</span><span class="ss">:permalink</span><span class="p">).</span><span class="nf">should_not</span> <span class="n">be_nil</span>
+  <span class="k">end</span>
+
+<span class="k">end</span>
+</pre>
+<p>Można się mniej więcej domyśleć o co chodzi, a tak w skrócie: <code>before</code> odpala się przed każdym testem (każde &ldquo;it &hellip;&rdquo;) i w tym wypadku usuwa wszystkie posty i tworzy jeden, w kolejnych testach mamy sprawdzenie czy post jest poprawny, czy wymaga podania tytułu, czy tworzy dobry permalink oraz czy wymga aby permalink był unikalny.</p>
+
+<p>Uruchommy jeszcze raz nasz test:</p>
+<pre class="highlight shell">jruby --client -S spec -O spec/spec.opts spec/models/post_spec.rb
+
+Post
+- should be valid
+- should require title <span class="o">(</span>FAILED - 1<span class="o">)</span>
+- should have correct permalink <span class="o">(</span>FAILED - 2<span class="o">)</span>
+- should have unique permalink <span class="o">(</span>FAILED - 3<span class="o">)</span>
+
+1<span class="o">)</span>
+<span class="s1">'Post should require title'</span> FAILED
+expected valid? to <span class="k">return </span><span class="nb">false</span>, got <span class="nb">true
+</span>spec/models/post_spec.rb:20:
+
+2<span class="o">)</span>
+<span class="s1">'Post should have correct permalink'</span> FAILED
+expected: <span class="s2">"jruby-merb-sequel-tutorial"</span>,
+     got: nil <span class="o">(</span>using <span class="o">==)</span>
+spec/models/post_spec.rb:25:
+
+3<span class="o">)</span>
+<span class="s1">'Post should have unique permalink'</span> FAILED
+expected valid? to <span class="k">return </span><span class="nb">false</span>, got <span class="nb">true
+</span>spec/models/post_spec.rb:30:
+
+Finished <span class="k">in </span>0.429 seconds
+
+4 examples, 3 failures
+</pre>
+<p>Jak widać model nie przechodzi 3 testów. Czas by coś z tym zrobić (tak, to już, teraz model)</p>
+<pre class="highlight ruby"><span class="k">class</span> <span class="nc">Post</span> <span class="o">&lt;</span> <span class="no">Sequel</span><span class="o">::</span><span class="no">Model</span>
+  <span class="n">validates</span> <span class="k">do</span>
+    <span class="n">presence_of</span> <span class="ss">:title</span>
+    <span class="n">uniqueness_of</span> <span class="ss">:permalink</span>
+  <span class="k">end</span>
+
+  <span class="k">def</span> <span class="nf">title</span><span class="o">=</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+    <span class="nb">self</span><span class="o">[</span><span class="ss">:title</span><span class="o">]</span> <span class="o">=</span> <span class="n">value</span>
+    <span class="nb">self</span><span class="p">.</span><span class="nf">permalink</span> <span class="o">=</span> <span class="no">Iconv</span><span class="p">.</span><span class="nf">iconv</span><span class="p">(</span><span class="s1">'ascii//translit//IGNORE'</span><span class="p">,</span> <span class="s1">'utf-8'</span><span class="p">,</span> <span class="n">value</span><span class="p">).</span><span class="nf">first</span><span class="p">.</span><span class="nf">gsub</span><span class="p">(</span><span class="sr">/[^\x00-\x7F]+/</span><span class="p">,</span> <span class="s1">''</span><span class="p">).</span><span class="nf">gsub</span><span class="p">(</span><span class="sr">/[^a-zA-Z0-9-]+/</span><span class="p">,</span> <span class="s1">'-'</span><span class="p">).</span><span class="nf">gsub</span><span class="p">(</span><span class="sr">/^-/</span><span class="p">,</span> <span class="s1">''</span><span class="p">).</span><span class="nf">gsub</span><span class="p">(</span><span class="sr">/-$/</span><span class="p">,</span> <span class="s1">''</span><span class="p">).</span><span class="nf">downcase</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+</pre>
+<p>Pare linijek, jak widać walidacja podobna jak w ActiveRecord i sztuczka z nadpisaniem metody <code>title=</code></p>
+
+<p>Odpalamy testy:</p>
+<pre class="highlight shell">jruby -S spec -O spec/spec.opts spec/models/post_spec.rb
+
+
+Post
+- should be valid
+- should require title
+- should have correct permalink
+- should have unique permalink
+
+
+Finished <span class="k">in </span>0.394 seconds
+
+
+4 examples, 0 failures
+</pre>
+<p>Na razie to tyle. W sumie to miało być tylko wprowadzenie do JRuby + Merb i troche Sequel`a ale jak już napisałem to niech zostanie, może się komuś przyda.</p>
+
+<p>PS. Pisałem to o 4 w nocy, jak tak teraz patrze to ten rspec tu ni w.. w sensie srednia pasuje, ale trudno :P</p>
+
+<p>* - nie muszą, może być podany typ specyficzny dla danej bazy, ale tak jest lepiej. Cytując <a href="http://sequel.rubyforge.org/rdoc/files/doc/schema\_rdoc.html">Sequel RDoc:</p>
+
+<blockquote>
+<p>Also, new in Sequel 2.10 is the ability to have database independent migrations using ruby classes as types. When you use a ruby class as a type, Sequel translates it to the most comparable type in the database you are using. (&hellip;) Basically, if you use one of the ruby classes above, it will translate into a database specific type. If you use a lowercase method, symbol, or string to specify the type, Sequel won’t attempt to translate it.</p>
+</blockquote>
+</div></article><div class="page-header"><h2>Comments</h2></div><div class="alert alert-info">Please comment at the <a href="http://teamon.jogger.pl/2009/04/01/jruby-merb-sequel">original post</a>.</div><ul class="pager"><li class="next"><a href="/2009/datamapper-asocjajcje-polimorficzne-i-nie-tylko">Older post →</a></li><li class="previous"><a href="/2009/ruby-poprzez-method-missing">← Newer post</a></li></ul></div><footer><div class="container"><div class="page-header"></div><div class="row"><div class="col-md-12"><ul class="list-unstyled"><li class="pull-right"><a href="#top">Back to top ↑</a></li><li><a href="/">Blog</a></li><li><a href="/about.html">About</a></li><li><a href="/projects.html">Projects</a></li><li><a href="/talks.html">Talks</a></li><li>|</li><li><a href="http://github.com/teamon">GitHub</a></li><li><a href="http://twitter.com/iteamon">Twitter</a></li><li><a href="http://monterail.com">Monterail</a></li><li><a href="http://codetunes.com">Codetunes</a></li></ul></div></div><div class="row"><div class="col-md-12"><p>Copyright 2007-2014 &mdash; Tymon Tobolski <br />Based on <a href="http://bootswatch.com/lumen/">Lumen Bootswatch</a>. Web fonts from <a href="http://www.google.com/webfonts">Google</a>. </p></div></div></div></footer></body></html>

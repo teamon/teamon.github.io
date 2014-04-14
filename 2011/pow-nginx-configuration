@@ -1,0 +1,32 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible" /><title>pow + nginx configuration</title><link href="http://fonts.googleapis.com/css?family=Droid+Sans:400,700|Bitter:400,700,400italic|Open+Sans:300italic,400italic,700italic,400,300,700" media="screen" rel="stylesheet" type="text/css" /><link href="../assets/stylesheets/all-f5ec2720.css" media="screen" rel="stylesheet" type="text/css" /><script src="../assets/javascripts/all-eca7008a.js" type="text/javascript"></script></head><body class="x2011 x2011_pow-nginx-configuration"><div class="navbar navbar-default"><div class="navbar-collapse collapse navbar-responsive-collapse"><div class="container"><ul class="nav navbar-nav"><li><a class="navbar-brand" href="/">Blog</a></li><li><a class="navbar-brand" href="/about.html">About</a></li><li><a class="navbar-brand" href="/projects.html">Projects</a></li><li><a class="navbar-brand" href="/talks.html">Talks</a></li></ul></div></div></div><div class="container"><article class="post"><div class="page-header"><div class="row"><div class="col-md-10"><h1>pow + nginx configuration</h1></div><div class="col-md-2 post-date"><time datetime="2011-07-28">Jul 28, 2011</time></div></div></div><div class="alert alert-info">This article was originally
+<a href="http://tumblr.teamon.eu/post/8180751671/pow-nginx-configuration">published at Tumblr</a>.</div><div class="lead"><pre class="highlight shell"><span class="c"># Install pow</span>
+<span class="gp">$ </span>curl get.pow.cx | sh
+
+<span class="c"># Install powder</span>
+<span class="gp">$ </span>gem install powder
+
+<span class="c"># See that firewall is fucked</span>
+<span class="gp">$ </span>sudo ipfw show
+00100     0        0 fwd 127.0.0.1,20559 tcp from any to me dst-port 80 <span class="k">in</span> &lt;- THIS ONE!!!
+65535 81005 28684067 allow ip from any to any
+
+<span class="c"># Disable it</span>
+<span class="gp">$ </span>powder down
+
+<span class="c"># See? It's gone!</span>
+<span class="gp">$ </span>sudo ipfw show
+65535 81005 28684067 allow ip from any to any
+
+<span class="c"># Required nginx configuration</span>
+    server <span class="o">{</span>
+      listen  80;
+      server_name <span class="k">*</span>.dev;
+      location / <span class="o">{</span>
+        proxy_set_header Host <span class="nv">$host</span>;
+        proxy_set_header X-Real-IP <span class="nv">$remote_addr</span>;
+        proxy_set_header X-Forwarded-For <span class="nv">$proxy_add_x_forwarded_for</span>;
+        proxy_redirect off;
+        proxy_pass http://localhost:20559; <span class="c"># The real pow port</span>
+      <span class="o">}</span>
+    <span class="o">}</span>
+</pre></div></article><div class="page-header"><h2>Comments</h2></div><div class="alert alert-info">Please comment at the <a href="http://tumblr.teamon.eu/post/8180751671/pow-nginx-configuration">original post</a>.</div><ul class="pager"><li class="next"><a href="/2011/rails-timeline-fu-and-workflow-integration">Older post →</a></li><li class="previous"><a href="/2012/kill-sbt-forked-jvm">← Newer post</a></li></ul></div><footer><div class="container"><div class="page-header"></div><div class="row"><div class="col-md-12"><ul class="list-unstyled"><li class="pull-right"><a href="#top">Back to top ↑</a></li><li><a href="/">Blog</a></li><li><a href="/about.html">About</a></li><li><a href="/projects.html">Projects</a></li><li><a href="/talks.html">Talks</a></li><li>|</li><li><a href="http://github.com/teamon">GitHub</a></li><li><a href="http://twitter.com/iteamon">Twitter</a></li><li><a href="http://monterail.com">Monterail</a></li><li><a href="http://codetunes.com">Codetunes</a></li></ul></div></div><div class="row"><div class="col-md-12"><p>Copyright 2007-2014 &mdash; Tymon Tobolski <br />Based on <a href="http://bootswatch.com/lumen/">Lumen Bootswatch</a>. Web fonts from <a href="http://www.google.com/webfonts">Google</a>. </p></div></div></div></footer></body></html>

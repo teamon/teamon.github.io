@@ -1,0 +1,96 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible" /><title>merb + db4o</title><link href="http://fonts.googleapis.com/css?family=Droid+Sans:400,700|Bitter:400,700,400italic|Open+Sans:300italic,400italic,700italic,400,300,700" media="screen" rel="stylesheet" type="text/css" /><link href="../assets/stylesheets/all-f5ec2720.css" media="screen" rel="stylesheet" type="text/css" /><script src="../assets/javascripts/all-eca7008a.js" type="text/javascript"></script></head><body class="x2009 x2009_merb-db4o"><div class="navbar navbar-default"><div class="navbar-collapse collapse navbar-responsive-collapse"><div class="container"><ul class="nav navbar-nav"><li><a class="navbar-brand" href="/">Blog</a></li><li><a class="navbar-brand" href="/about.html">About</a></li><li><a class="navbar-brand" href="/projects.html">Projects</a></li><li><a class="navbar-brand" href="/talks.html">Talks</a></li></ul></div></div></div><div class="container"><article class="post"><div class="page-header"><div class="row"><div class="col-md-10"><h1>merb + db4o</h1></div><div class="col-md-2 post-date"><time datetime="2009-07-29">Jul 29, 2009</time></div></div></div><div class="alert alert-info">This article is written in Polish and was originally
+<a href="http://teamon.jogger.pl/2009/07/29/merb-db4o">published at Jogger</a>.</div><div class="lead"><p>Mini tutorial o tym jak skorzystać z obiektowej bazy <a href="http://www.db4o.com/">db4o</a> w <a href="http://merbivore.com">merbie</a> - takie małe <em>proof of concept</em>.</p>
+
+<h3>Wymagania &amp; instalacja</h3>
+
+<ul>
+<li><a href="http://jruby.org">JRuby</a> - Przykład instalacji można znaleźć na przykład <a href="http://blog.teamon.eu/2009/04/01/jruby-merb-sequel/">w jednym z poprzednich postów </li></li>
+<li><a href="http://www.db4o.com">db4o</a> - jar dostępny razem z rdb4o</li>
+<li><a href="http://merbivore.com">merb</a> - gem install merb-core</li>
+<li><a href="http://github.com/teamon/rdb4o/tree/master">rdb4o</a></li>
+</ul>
+<pre class="highlight shell">git clone git://github.com/teamon/rdb4o.git
+<span class="nb">cd </span>rdb4o
+rake install
+</pre>
+<ul>
+<li><a href="http://github.com/teamon/merb_rdb4o/tree/master">merb_rdb4o_</a></li>
+</ul>
+<pre class="highlight shell">git clone git://github.com/teamon/merb_rdb4o.git
+<span class="nb">cd </span>merb_rdb4o
+rake jruby:install
+</pre>
+<h3>Aplikacja</h3>
+
+<h4>1. Wygenerowanie szkieletu aplikacji (<code>core</code> zamiast <code>app</code> - nie chcemy DataMapperowego syfu :P)</h4>
+<pre class="highlight shell">merb-gen core awesome
+<span class="nb">cd </span>awesome
+</pre>
+<h4>2. Konfiguracja</h4>
+
+<p>W pliku <code>config/init.rb</code>:</p>
+<pre class="highlight ruby"><span class="n">dependency</span> <span class="s2">"rdb4o"</span>
+<span class="n">dependency</span> <span class="s2">"merb_rdb4o"</span>
+<span class="n">use_orm</span> <span class="ss">:rdb4o</span>
+</pre>
+<p>Można teraz spróbować uruchomić aplikacje. Wszystkie komendy trzeba poprzedzić <code>jruby -S</code></p>
+<pre class="highlight shell">jruby -S merb
+</pre>
+<p>Ale&hellip;</p>
+<pre class="highlight shell">~ No database.yml file found <span class="k">in</span> /Users/teamon/Desktop/rdb4o_test/config.
+~ A sample file was created called database.sample.yml <span class="k">for </span>you to copy and edit.
+</pre>
+<p>Trzeba ustawić parametry bazy danych - w naszym przypadku domyślne ustawienia będą w sam raz - wystarczy zmienić nazwe pliku z <code>database.yml.sample</code> na <code>database.yml</code>.</p>
+
+<p><code>mv config/database.yml.sample config/database.yml</code> (dla leniwych)</p>
+
+<p>Działa! (jeee&hellip;)</p>
+
+<h4>3. Test first!</h4>
+
+<p>Eeee&hellip; innym razem</p>
+
+<h4>4. Model</h4>
+<pre class="highlight shell">jruby -s merb-gen model Cat
+</pre>
+<p>Przydałoby się parę pól:</p>
+<pre class="highlight ruby"><span class="k">class</span> <span class="nc">Cat</span>
+  <span class="kp">include</span> <span class="no">Rdb4o</span><span class="o">::</span><span class="no">Model</span>
+
+  <span class="n">field</span> <span class="ss">:name</span><span class="p">,</span> <span class="no">String</span>
+  <span class="n">field</span> <span class="ss">:age</span><span class="p">,</span> <span class="no">Fixnum</span>
+  <span class="n">field</span> <span class="ss">:nice</span><span class="p">,</span> <span class="no">Boolean</span>
+<span class="k">end</span>
+</pre>
+<p>db4o (jeszcze ;]) nie potrafi zapisać obiektów ruby więc trzeba wygenerować klasy javowe</p>
+<pre class="highlight shell">jruby -S rake rdb4o:compile_models
+</pre>
+<p>Jeśli ktoś bardzo chce to może zobaczyć sobie <code>app/models/java/Cat.java</code> ale dla większości nie będzie to miły widok (fuj, Java)</p>
+
+<p>Kto chce kotka?</p>
+<pre class="highlight shell">jruby -S merb -i
+</pre><pre class="highlight ruby"><span class="o">&gt;&gt;</span> <span class="no">Cat</span><span class="p">.</span><span class="nf">create</span> <span class="ss">:name</span> <span class="o">=&gt;</span> <span class="s2">"Kitty"</span><span class="p">,</span> <span class="ss">:age</span> <span class="o">=&gt;</span> <span class="mi">1</span><span class="p">,</span> <span class="ss">:nice</span> <span class="o">=&gt;</span> <span class="kp">true</span>
+<span class="o">&gt;&gt;</span> <span class="no">Cat</span><span class="p">.</span><span class="nf">create</span> <span class="ss">:name</span> <span class="o">=&gt;</span> <span class="s2">"Simba"</span><span class="p">,</span> <span class="ss">:age</span> <span class="o">=&gt;</span> <span class="mi">5</span><span class="p">,</span> <span class="ss">:nice</span> <span class="o">=&gt;</span> <span class="kp">false</span>
+</pre>
+<p>(Polecam pobawić się z klasą <code>Cat</code> - streszczenie dostępnych opcji dostępne w <a href="http://github.com/teamon/rdb4o/blob/15de306cee37d4b8f8a8261889608191f82b0a0a/README.markdown">README</a>)</p>
+
+<h4>5. Szybki kontroller i widoczek</h4>
+<pre class="highlight shell">jruby -S merb-gen controller cats
+</pre><pre class="highlight ruby"><span class="c1"># app/controllers/cats.rb</span>
+<span class="k">class</span> <span class="nc">Cats</span> <span class="o">&lt;</span> <span class="no">Application</span>
+  <span class="k">def</span> <span class="nf">index</span>
+    <span class="vi">@cats</span> <span class="o">=</span> <span class="no">Cat</span><span class="p">.</span><span class="nf">all</span>
+    <span class="n">render</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+</pre><pre class="highlight erb"><span class="c">&lt;!--  app/views/cats/index.html.erb --&gt;</span>
+<span class="cp">&lt;%</span> <span class="vi">@cats</span><span class="p">.</span><span class="nf">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">cat</span><span class="o">|</span> <span class="cp">%&gt;</span>
+  <span class="nt">&lt;p&gt;</span><span class="cp">&lt;%=</span> <span class="n">cat</span><span class="p">.</span><span class="nf">name</span> <span class="cp">%&gt;</span>, <span class="cp">&lt;%=</span> <span class="n">cat</span><span class="p">.</span><span class="nf">age</span> <span class="cp">%&gt;</span>, <span class="cp">&lt;%=</span> <span class="n">cat</span><span class="p">.</span><span class="nf">nice?</span> <span class="cp">%&gt;</span><span class="nt">&lt;/p&gt;</span>
+<span class="cp">&lt;%</span> <span class="k">end</span> <span class="cp">%&gt;</span>
+</pre>
+<p>Odpalamy (<code>jruby -S merb</code>), wchodzimy na <a href="http://localhost:4000">http://localhost:4000</a> i widzimy listę zwierzaków - awesome.</p>
+
+<p>To by było na tyle z mini-tutka. Wniosek jest jeden - działa ;]. Jeśli komuś java zjada właśnie 90% cpu to tylko ze względu na opcje <code>reload_classes</code> w configu merba (wystarczy dać na false i będzie śmigać)</p>
+
+<p>Jeszcze raz gorąco polecam przejrzeć <a href="http://github.com/teamon/rdb4o/tree/master">README</a> :)</p>
+</div></article><div class="page-header"><h2>Comments</h2></div><div class="alert alert-info">Please comment at the <a href="http://teamon.jogger.pl/2009/07/29/merb-db4o">original post</a>.</div><ul class="pager"><li class="next"><a href="/2009/ruby-bound-unbound-method-inherited-included-extended">Older post →</a></li><li class="previous"><a href="/2009/prosty-960-gridder">← Newer post</a></li></ul></div><footer><div class="container"><div class="page-header"></div><div class="row"><div class="col-md-12"><ul class="list-unstyled"><li class="pull-right"><a href="#top">Back to top ↑</a></li><li><a href="/">Blog</a></li><li><a href="/about.html">About</a></li><li><a href="/projects.html">Projects</a></li><li><a href="/talks.html">Talks</a></li><li>|</li><li><a href="http://github.com/teamon">GitHub</a></li><li><a href="http://twitter.com/iteamon">Twitter</a></li><li><a href="http://monterail.com">Monterail</a></li><li><a href="http://codetunes.com">Codetunes</a></li></ul></div></div><div class="row"><div class="col-md-12"><p>Copyright 2007-2014 &mdash; Tymon Tobolski <br />Based on <a href="http://bootswatch.com/lumen/">Lumen Bootswatch</a>. Web fonts from <a href="http://www.google.com/webfonts">Google</a>. </p></div></div></div></footer></body></html>

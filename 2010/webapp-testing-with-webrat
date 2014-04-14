@@ -1,0 +1,99 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible" /><title>Webapp testing with Webrat and [your language]</title><link href="http://fonts.googleapis.com/css?family=Droid+Sans:400,700|Bitter:400,700,400italic|Open+Sans:300italic,400italic,700italic,400,300,700" media="screen" rel="stylesheet" type="text/css" /><link href="../assets/stylesheets/all-f5ec2720.css" media="screen" rel="stylesheet" type="text/css" /><script src="../assets/javascripts/all-eca7008a.js" type="text/javascript"></script></head><body class="x2010 x2010_webapp-testing-with-webrat"><div class="navbar navbar-default"><div class="navbar-collapse collapse navbar-responsive-collapse"><div class="container"><ul class="nav navbar-nav"><li><a class="navbar-brand" href="/">Blog</a></li><li><a class="navbar-brand" href="/about.html">About</a></li><li><a class="navbar-brand" href="/projects.html">Projects</a></li><li><a class="navbar-brand" href="/talks.html">Talks</a></li></ul></div></div></div><div class="container"><article class="post"><div class="page-header"><div class="row"><div class="col-md-10"><h1>Webapp testing with Webrat and [your language]</h1></div><div class="col-md-2 post-date"><time datetime="2010-02-13">Feb 13, 2010</time></div></div></div><div class="alert alert-info">This article was originally
+<a href="http://tumblr.teamon.eu/post/386391102/webapp-testing-with-webrat-and-your-language">published at Tumblr</a>.</div><div class="lead"><p><a href="http://github.com/brynary/webrat">Webrat</a> was written mainly to improve Rails` web applications testing. But what if webapp is written in something else? The answer is simple - webrat!</p>
+
+<p>Requirements: Ruby</p>
+
+<p>Installation: <code>gem install mechanize webrat</code> Done.</p>
+
+<p>Now create file <code>test.rb</code> and put in there:</p>
+
+<p></p>
+<pre class="highlight ruby"><span class="nb">require</span> <span class="s2">"webrat"</span>
+
+<span class="c1"># configuration</span>
+
+<span class="no">Webrat</span><span class="p">.</span><span class="nf">configure</span> <span class="k">do</span> <span class="o">|</span><span class="n">config</span><span class="o">|</span>
+  <span class="n">config</span><span class="p">.</span><span class="nf">mode</span> <span class="o">=</span> <span class="ss">:mechanize</span>
+<span class="k">end</span>
+
+<span class="k">class</span> <span class="nc">MechanizeWorld</span> <span class="o">&lt;</span> <span class="no">Webrat</span><span class="o">::</span><span class="no">MechanizeAdapter</span>
+  <span class="kp">include</span> <span class="no">Webrat</span><span class="o">::</span><span class="no">Matchers</span>
+  <span class="kp">include</span> <span class="no">Webrat</span><span class="o">::</span><span class="no">Methods</span>
+
+  <span class="no">Webrat</span><span class="o">::</span><span class="no">Methods</span><span class="p">.</span><span class="nf">delegate_to_session</span> <span class="ss">:response_code</span><span class="p">,</span> <span class="ss">:response_body</span>
+<span class="k">end</span>
+
+<span class="no">Spec</span><span class="o">::</span><span class="no">Runner</span><span class="p">.</span><span class="nf">configure</span> <span class="k">do</span> <span class="o">|</span><span class="n">config</span><span class="o">|</span>
+  <span class="kp">include</span> <span class="no">Webrat</span><span class="o">::</span><span class="no">Methods</span>
+<span class="k">end</span>
+
+<span class="c1"># Tests start here</span>
+
+<span class="n">describe</span> <span class="s2">"Awesome system"</span> <span class="k">do</span>
+  <span class="n">it</span> <span class="s2">"should work"</span> <span class="k">do</span>
+    <span class="n">visit</span> <span class="s2">"http://0.0.0.0:8080"</span>
+    <span class="n">click_link</span> <span class="s2">"Login"</span>
+    <span class="n">fill_in</span> <span class="s2">"Username"</span><span class="p">,</span> <span class="ss">:with</span> <span class="o">=&gt;</span> <span class="s2">"teamon"</span>
+    <span class="n">click_button</span> <span class="s2">"Login"</span>
+    <span class="n">response_body</span><span class="p">.</span><span class="nf">should</span> <span class="kp">include</span> <span class="s2">"Wrong password"</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+</pre>
+<p>To run tests use command: <code>spec test.rb</code></p>
+
+<p><img alt="" width="500" height="198" src="../assets/images/blog/webapp-testing-with-webrat-pic1-be6cdeaa.png" /></p>
+
+<p>For colorful and more readable output use: <code>spec --color --format specdoc test.rb</code></p>
+
+<p><img alt="" width="500" height="225" src="../assets/images/blog/webapp-testing-with-webrat-pic2-d5ec3e32.png" /></p>
+
+<p>That&rsquo;s almost all. While it works pretty well having all tests in one file is not what we are used to after working with Rails. Let&rsquo;s fix that by splitting that code into <code>spec_helper.rb</code> and <code>login_spec.rb</code> files.</p>
+<pre class="highlight ruby"><span class="c1"># spec_helper.rb</span>
+<span class="nb">require</span> <span class="s2">"webrat"</span>
+
+<span class="no">Webrat</span><span class="p">.</span><span class="nf">configure</span> <span class="k">do</span> <span class="o">|</span><span class="n">config</span><span class="o">|</span>
+  <span class="n">config</span><span class="p">.</span><span class="nf">mode</span> <span class="o">=</span> <span class="ss">:mechanize</span>
+<span class="k">end</span>
+
+<span class="k">class</span> <span class="nc">MechanizeWorld</span> <span class="o">&lt;</span> <span class="no">Webrat</span><span class="o">::</span><span class="no">MechanizeAdapter</span>
+  <span class="kp">include</span> <span class="no">Webrat</span><span class="o">::</span><span class="no">Matchers</span>
+  <span class="kp">include</span> <span class="no">Webrat</span><span class="o">::</span><span class="no">Methods</span>
+
+  <span class="no">Webrat</span><span class="o">::</span><span class="no">Methods</span><span class="p">.</span><span class="nf">delegate_to_session</span> <span class="ss">:response_code</span><span class="p">,</span> <span class="ss">:response_body</span>
+<span class="k">end</span>
+
+<span class="no">Spec</span><span class="o">::</span><span class="no">Runner</span><span class="p">.</span><span class="nf">configure</span> <span class="k">do</span> <span class="o">|</span><span class="n">config</span><span class="o">|</span>
+  <span class="kp">include</span> <span class="no">Webrat</span><span class="o">::</span><span class="no">Methods</span>
+<span class="k">end</span>
+</pre><pre class="highlight ruby"><span class="c1"># login_spec.rb</span>
+<span class="nb">require</span> <span class="no">File</span><span class="p">.</span><span class="nf">join</span><span class="p">(</span> <span class="no">File</span><span class="p">.</span><span class="nf">dirname</span><span class="p">(</span><span class="kp">__FILE__</span><span class="p">),</span> <span class="s2">"spec_helper"</span> <span class="p">)</span>
+
+<span class="n">describe</span> <span class="s2">"Login system"</span> <span class="k">do</span>
+  <span class="n">it</span> <span class="s2">"should not let me in"</span> <span class="k">do</span>
+    <span class="n">visit</span> <span class="s2">"http://0.0.0.0:8080"</span>
+    <span class="n">click_link</span> <span class="s2">"Login"</span>
+    <span class="n">fill_in</span> <span class="s2">"Username"</span><span class="p">,</span> <span class="ss">:with</span> <span class="o">=&gt;</span> <span class="s2">"teamon"</span>
+    <span class="n">click_button</span> <span class="s2">"Login"</span>
+    <span class="n">response_body</span><span class="p">.</span><span class="nf">should</span> <span class="kp">include</span> <span class="s2">"Wrong password"</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+</pre>
+<p>simple <code>Rakefile</code> for running all tests</p>
+<pre class="highlight ruby"><span class="c1"># Rakefile</span>
+<span class="n">desc</span> <span class="s2">"Run specs"</span>
+<span class="n">task</span> <span class="ss">:spec</span> <span class="k">do</span>
+  <span class="nb">system</span><span class="p">(</span><span class="s2">"spec path/to/tests -O path/to/tests/spec.opts"</span><span class="p">)</span>
+<span class="k">end</span>
+</pre>
+<p>and <code>spec.opts</code></p>
+<pre class="highlight plaintext">--color
+--format specdoc
+</pre>
+<p>Now you can run test with <code>rake spec</code> command. Note that files with tests must end with <code>_spec.rb</code> in order to get executed by spec command.</p>
+
+<h2>Textmate integration</h2>
+
+<p>It is possible to run specs from <a href="http://macromates.com/">Textmate</a> via <a href="http://github.com/textmate/ruby-rspec.tmbundle">ruby-rspec bundle</a>. Just clone repository, double click on <code>ruby-rspec.bundle</code>, open test file and press <code>⌘ + R</code> to get something like:</p>
+
+<p><img alt="" width="500" height="223" src="../assets/images/blog/webapp-testing-with-webrat-pic3-48e645f5.png" /></p>
+</div></article><div class="page-header"><h2>Comments</h2></div><div class="alert alert-info">Please comment at the <a href="http://tumblr.teamon.eu/post/386391102/webapp-testing-with-webrat-and-your-language">original post</a>.</div><ul class="pager"><li class="next"><a href="/2009/prosty-960-gridder">Older post →</a></li><li class="previous"><a href="/2010/scala-note-nonlocalreturn">← Newer post</a></li></ul></div><footer><div class="container"><div class="page-header"></div><div class="row"><div class="col-md-12"><ul class="list-unstyled"><li class="pull-right"><a href="#top">Back to top ↑</a></li><li><a href="/">Blog</a></li><li><a href="/about.html">About</a></li><li><a href="/projects.html">Projects</a></li><li><a href="/talks.html">Talks</a></li><li>|</li><li><a href="http://github.com/teamon">GitHub</a></li><li><a href="http://twitter.com/iteamon">Twitter</a></li><li><a href="http://monterail.com">Monterail</a></li><li><a href="http://codetunes.com">Codetunes</a></li></ul></div></div><div class="row"><div class="col-md-12"><p>Copyright 2007-2014 &mdash; Tymon Tobolski <br />Based on <a href="http://bootswatch.com/lumen/">Lumen Bootswatch</a>. Web fonts from <a href="http://www.google.com/webfonts">Google</a>. </p></div></div></div></footer></body></html>

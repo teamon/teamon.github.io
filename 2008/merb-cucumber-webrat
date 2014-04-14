@@ -1,0 +1,177 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible" /><title>Merb: cucumber + webrat, czyli wszystko co chcielibyście wiedzieć o testowaniu</title><link href="http://fonts.googleapis.com/css?family=Droid+Sans:400,700|Bitter:400,700,400italic|Open+Sans:300italic,400italic,700italic,400,300,700" media="screen" rel="stylesheet" type="text/css" /><link href="../assets/stylesheets/all-f5ec2720.css" media="screen" rel="stylesheet" type="text/css" /><script src="../assets/javascripts/all-eca7008a.js" type="text/javascript"></script></head><body class="x2008 x2008_merb-cucumber-webrat"><div class="navbar navbar-default"><div class="navbar-collapse collapse navbar-responsive-collapse"><div class="container"><ul class="nav navbar-nav"><li><a class="navbar-brand" href="/">Blog</a></li><li><a class="navbar-brand" href="/about.html">About</a></li><li><a class="navbar-brand" href="/projects.html">Projects</a></li><li><a class="navbar-brand" href="/talks.html">Talks</a></li></ul></div></div></div><div class="container"><article class="post"><div class="page-header"><div class="row"><div class="col-md-10"><h1>Merb: cucumber + webrat, czyli wszystko co chcielibyście wiedzieć o testowaniu</h1></div><div class="col-md-2 post-date"><time datetime="2008-12-02">Dec  2, 2008</time></div></div></div><div class="alert alert-info">This article is written in Polish and was originally
+<a href="http://teamon.jogger.pl/2008/12/02/merb-cucumber-webrat-czyli-wszystko-co-chcielibyscie-wiedzie">published at Jogger</a>.</div><div class="lead"><p>Tym razem będzie o testowaniu aplikacji napisanej w <a href="http://merbivore.com">Merbie</a>.</p>
+
+<p>Większość pewnie zna framework testujący <a href="http://rspec.info">RSpec</a>. Razem z RSpecem dostępny jest Story Runner. Jednak jak można wyczytać na stronie projektu:</p>
+
+<blockquote>
+<p>RSpec’s Story Runner is now deprecated and will be extracted out to a separate gem soon.
+  For more info on cucumber, see <a href="http://github.com/aslakhellesoy/cucumber/wikis">http://github.com/aslakhellesoy/cucumber/wikis</a></p>
+</blockquote>
+
+<p>I to właśnie wspomnianego <em>ogórka</em> opisze.</p>
+
+<p><a href="http://github.com/aslakhellesoy/cucumber/wikis">Cucumber</a> podobnie jak RSpec Story Runner służy do testowania (i dokumentacji) aplikacji za pomocą czytelnych dla każdego scenariuszy zapisanych w formie zwykłego tekstu. Taki scenariusz jest przetwarzany i dopasowywany do odpowiednich, zdefiniowanych w osobnym pliku kroków. Główne zalety frameworka to m.in. możliwość przetestowania całej aplikacji od modelu przez kontroler po widok tak, jakby to robił zwykły użytkownik oraz &ldquo;darmowa&rdquo; dokumentacja aplikacji w formie przykładów użycia.</p>
+
+<p>(Jeśli ktoś nie jest zaznajomiony z tematem, to polecam <a href="http://www.google.pl/search?q=plain%20text%20stories">&ldquo;Plain text stories&rdquo;</a>, a poza tym myślę, że przykład wszystko wyjaśni.)</p>
+
+<p><a href="http://github.com/brynary/webrat/tree/master">Webrat</a> natomiast pozwala na intuicyjne zapisanie tego, co robiłby użytkownik korzystający z aplikacji</p>
+<pre class="highlight ruby"><span class="n">visit</span> <span class="n">home_path</span>
+<span class="n">click_link</span> <span class="s2">"Sign up"</span>
+<span class="n">fill_in</span> <span class="s2">"Email"</span><span class="p">,</span> <span class="ss">:with</span> <span class="o">=&gt;</span> <span class="s2">"good@example.com"</span>
+<span class="nb">select</span> <span class="s2">"Free account"</span>
+<span class="n">click_button</span> <span class="s2">"Register"</span>
+</pre>
+<h3>Instalacja</h3>
+
+<p>Zakładam, że Merb jak i RSpec jest już zainstalowany ;)</p>
+
+<h4>webrat + cucumber</h4>
+<pre class="highlight plaintext">$ sudo gem install webrat cucumber
+</pre>
+<h4>plugin <a href="http://github.com/david/merb_cucumber/tree/master">merb_cucumber</a></h4>
+
+<p>Jeśli ktoś jeszcze nie dodał githuba do źródeł, to:
+<code>
+$ gem sources -a http://gems.github.com
+</code></p>
+
+<p>a potem wystarczy:</p>
+<pre class="highlight plaintext">$ sudo gem install david-merb_cucumber
+</pre>
+<p>W katalogu aplikacji:
+<code>
+$ merb-gen cucumber --session-type webrat
+</code></p>
+
+<p>Cucumber jest już zainstalowany i gotowy do pracy. Do katalogu aplikacji został dodany folder <code>features</code>, w którym to należy umieścić scenariusze. Warto przejrzeć zawartość tego folderu gdyż zawiera on ładny przykład scenariusza oraz kilka często używanych kroków.</p>
+
+<p>W szczególności spodobał mi się plik <code>features/steps/common_webrat.rb</code> zawierający kroki opisujące działania wykonywane za pomocą webrata.</p>
+
+<h3>Może jakiś przykład?</h3>
+
+<p>Oto i on. Posłużę się kawałkiem obecnie rozwijanej przeze mnie aplikacji. Podaje kod modelu tylko po to, aby łatwiej było zrozumieć co się dzieje ;)</p>
+<pre class="highlight ruby"><span class="k">class</span> <span class="nc">Site</span>
+  <span class="kp">include</span> <span class="no">DataMapper</span><span class="o">::</span><span class="no">Resource</span>
+
+  <span class="n">property</span> <span class="ss">:id</span><span class="p">,</span> <span class="no">Serial</span>
+
+  <span class="n">property</span> <span class="ss">:name</span><span class="p">,</span> <span class="no">String</span><span class="p">,</span> <span class="ss">:nullable</span> <span class="o">=&gt;</span> <span class="kp">false</span>
+  <span class="n">property</span> <span class="ss">:domain</span><span class="p">,</span> <span class="no">String</span><span class="p">,</span> <span class="ss">:nullable</span> <span class="o">=&gt;</span> <span class="kp">false</span>
+  <span class="n">property</span> <span class="ss">:description</span><span class="p">,</span> <span class="no">Text</span>
+  <span class="n">property</span> <span class="ss">:keywords</span><span class="p">,</span> <span class="no">String</span>
+<span class="k">end</span>
+</pre>
+<p>Kontroler oraz widoki praktycznie nie różnią się od tych wygenerowanych przez <code>merb-gen resource</code> - standard.</p>
+
+<p>Scenariusze grupowane są w pliki &ldquo;właściwości/cech&rdquo; (feature). Warto teraz wspomnieć, że cucumber nie narzuca żadnych konwencji nazewnictwa. Ważne tylko aby pliki scenariuszy miały rozszerzenie <code>.feature</code>, a pliki kroków znajdowały się w folderze <code>steps</code> (kroki są oczywiście pisane w Ruby, więc pliki będą kończyły się na <code>.rb</code>) - nazwa nie ma znaczenia.</p>
+
+<p>Na pierwszy ogień pójdzie dodawanie nowej strony. Na początku krótki opis:</p>
+<pre class="highlight plaintext">Feature: Create site
+  To create site
+  An admin
+  Must fill the form.
+</pre>
+<p>Nie ma on większego znaczenia, jednak warto streścić tu zawarte niżej scenariusze.</p>
+
+<p>Zajmijmy się teraz pierwszym przypadkiem - wypełniamy formularz, strona zostaje dodana i jesteśmy przekierowywani do listy wszystkich stron. A tak to wygląda:</p>
+<pre class="highlight plaintext">Feature: Create site
+  To create site
+  An admin
+  Must fill the form.
+
+  Scenario: Creating new site
+  Given no sites exist
+  When I go to /sites
+  And I follow "Add site"
+  And I fill in "name" with "Cucumber"
+  And I fill in "domain" with "cucumber.org"
+  And I fill in "description" with "I love cucumbers"
+  And I press "Add"
+  Then I should see an notice message
+  And I should see table like
+    | Name | Domain |
+    | Cucumber | cucumber.org |
+</pre>
+<p>Zapisujac scenariusz (razem ze wstępem) jako <code>create_site.feature</code> i uruchamiając <code>$ rake features</code> otrzymamy:
+<img alt="cucumber pending" width="705" height="629" src="../assets/images/blog/merb-cucumber-webrat/pending-85461399.png" /></p>
+
+<p>Jak widać, otrzymaliśmy ładnie pokolorowany scenariusz. Niebieskie kroki zostały pominięte ze względu na brak kroku dla pierwszej linii scenariusza. Żółty kolor oznacza właśnie, iż linia nie została dopasowana do żadnego kroku. Poniżej znajdują się kawałki kodu które można użyć do implementacji brakujących kroków.</p>
+
+<p>Utwórzmy teraz plik <code>steps/site_steps.rb</code> a w nim:</p>
+<pre class="highlight ruby"><span class="no">Given</span> <span class="sr">/^no sites exist$/</span> <span class="k">do</span>
+  <span class="no">Site</span><span class="p">.</span><span class="nf">all</span><span class="p">.</span><span class="nf">destroy!</span>
+<span class="k">end</span>
+
+<span class="c1"># ten krok przyda się na później, ale opisze go teraz</span>
+<span class="no">Given</span> <span class="sr">/^site with name "(.*)" and domain "(.*)" exists$/</span> <span class="k">do</span> <span class="o">|</span><span class="nb">name</span><span class="p">,</span> <span class="n">domain</span><span class="o">|</span>
+  <span class="no">Given</span> <span class="s2">"no sites exist"</span> <span class="c1"># wywołanie kroku znajdującego się powyżej</span>
+  <span class="no">Site</span><span class="p">.</span><span class="nf">create</span><span class="p">(</span><span class="ss">:name</span> <span class="o">=&gt;</span> <span class="nb">name</span><span class="p">,</span> <span class="ss">:domain</span> <span class="o">=&gt;</span> <span class="n">domain</span><span class="p">)</span>
+<span class="k">end</span>
+
+<span class="no">Then</span> <span class="sr">/^I should see table like$/</span> <span class="k">do</span> <span class="o">|</span><span class="n">table</span><span class="o">|</span>
+  <span class="n">table</span><span class="p">.</span><span class="nf">hashes</span><span class="p">.</span><span class="nf">first</span><span class="p">.</span><span class="nf">keys</span><span class="p">.</span><span class="nf">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">head</span><span class="o">|</span>
+    <span class="n">response</span><span class="p">.</span><span class="nf">should</span> <span class="n">have_xpath</span><span class="p">(</span><span class="s2">"//table/tr/th[. = '</span><span class="si">#{</span><span class="n">head</span><span class="si">}</span><span class="s2">']"</span><span class="p">)</span>
+  <span class="k">end</span>
+  <span class="n">table</span><span class="p">.</span><span class="nf">hashes</span><span class="p">.</span><span class="nf">each</span> <span class="k">do</span> <span class="o">|</span><span class="nb">hash</span><span class="o">|</span>
+    <span class="nb">hash</span><span class="p">.</span><span class="nf">each_pair</span> <span class="k">do</span> <span class="o">|</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="o">|</span>
+      <span class="n">response</span><span class="p">.</span><span class="nf">should</span> <span class="n">have_xpath</span><span class="p">(</span><span class="s2">"//table/tr/td[. = '</span><span class="si">#{</span><span class="n">value</span><span class="si">}</span><span class="s2">']"</span><span class="p">)</span>
+    <span class="k">end</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+</pre>
+<p>Składnia kroków jest bardzo prosta: Given/When/Then + RegExp + blok opcjonalnie z parametrami.
+Poprzez zastosowanie wyrażeń regularnych można wykorzystać ten sam krok dla różnych danych co znacznie zmniejsza ilość potrzebnych kroków. Przyczynie się do tego również możliwość wywoływania innych kroków z wewnątrz kroku. Ostatni krok wykorzystuje <a href="http://github.com/aslakhellesoy/cucumber/wikis/using-fit-tables-in-a-feature">tabele</a> i selektory XPath do sprawdzenia poprawności strony wynikowej.</p>
+
+<p>Odpalmy testy ponownie. Powinno się pokazać wynik podobny do:
+<img alt="cucumber pass" width="705" height="489" src="../assets/images/blog/merb-cucumber-webrat/pass-11690095.png" />
+Działa :D</p>
+
+<p>Dodajmy jeszcze jeden scenariusz, tym razem sprawdzający czy aplikacja zachowa się poprawnie w przypadku próby dodania strony o istniejącej już nazwie: (na koniec pliku <code>create_site.feature</code>)</p>
+<pre class="highlight plaintext">Scenario: Creating site with existing name or domain
+  Given site with name "Cucumber" and domain "cucumber.org" exists
+  When I go to /sites
+  And I follow "Add site"
+  And I fill in "name" with "Cucumber"
+  And I fill in "domain" with "cucumber.org"
+  And I press "Add"
+  Then the creating request should fail
+  And I should see an error message
+</pre>
+<p>Wykorzystamy tu drugi krok, który utworzy w bazie stronę o nazwie &ldquo;cucumber&rdquo; i domenie &ldquo;cucumber.org&rdquo;.</p>
+
+<p>Po uruchomieniu okaże się, że nasza aplikacja nie przechodzi testu:
+<img alt="cucumber fail" width="783" height="699" src="../assets/images/blog/merb-cucumber-webrat/fail-e3878880.png" />
+Aby to naprawić należy nice zmienić model:</p>
+<pre class="highlight ruby"><span class="n">property</span> <span class="ss">:name</span><span class="p">,</span> <span class="no">String</span><span class="p">,</span> <span class="ss">:nullable</span> <span class="o">=&gt;</span> <span class="kp">false</span><span class="p">,</span> <span class="ss">:unique</span> <span class="o">=&gt;</span> <span class="kp">true</span>
+<span class="n">property</span> <span class="ss">:domain</span><span class="p">,</span> <span class="no">String</span><span class="p">,</span> <span class="ss">:nullable</span> <span class="o">=&gt;</span> <span class="kp">false</span><span class="p">,</span> <span class="ss">:unique</span> <span class="o">=&gt;</span> <span class="kp">true</span>
+</pre>
+<p>I oto co uzyskamy:
+<img alt="cucumber pass" width="783" height="629" src="../assets/images/blog/merb-cucumber-webrat/pass2-0b5052b7.png" />
+Tadam ;]</p>
+
+<p>Mam nadzieję, że ten krótki tutorial przybliży nieco zagadnienie testowania aplikacji za pomocą scenariuszy. Jeszcze raz polecam <a href="http://github.com/aslakhellesoy/cucumber/wikis">wiki cucumbera</a> - można znaleźć tam odpowiedzi na wiele pytań, jak również <a href="http://github.com/aslakhellesoy/cucumber/tree/master/examples">zbiór przykładów</a> i jeszcze <a href="http://github.com/qrush/cucumber_seeds/tree/master">kilku innych</a>. W ostateczności można się o coś zapytać w komentarzach ;)</p>
+
+<p>Na koniec mała ściąga all-in-one</p>
+<pre class="highlight shell">sudo gem install webrat cucumber
+gem sources -a http://gems.github.com
+sudo gem install david-merb<span class="se">\_</span>cucumber
+merb-gen cucumber --session-type webrat
+rake features
+</pre>
+<p>Miłego testowania.</p>
+
+<h3>Edit:</h3>
+
+<p>Dla tych co nie lubią/nie znają angielskiego albo po prostu chcą potem pokazać scenariusze komuś kto nie zna tego języka jest specjalna opcja. Cucumber pozwala <a href="http://github.com/aslakhellesoy/cucumber/wikis/spoken-languages">tworzyć scenariusze w dowolnym języku</a>, np. polskim*.</p>
+
+<p>P.S. Na potrzeby tego wpisu blog musiał się poszerzyć o 120px :P</p>
+
+<p>* - Może jutro to opisze, dzisiaj już nie mam siły myśleć.</p>
+
+<h3>EDIT: Autotest</h3>
+
+<p>Aby <code>features</code> uruchamiały się automatycznie wystarczy zainstalować najnowszą wersje merb_cucumber (<code>sudo gem install david-merb_cucumber</code>), uruchomić <code>merb-gen cucumber</code> w katalogu aplikacji oraz dodać do pliku <code>cucumber.yml</code> linijke z profilem autotest i opcjami np. takimi:</p>
+<pre class="highlight plaintext">autotest: -r features --format pretty features
+</pre>
+<p>Opcja <code>-r</code> features automatycznie ładuje wszystkie pliki z katalogu <code>features</code>. Teraz wystarczy już tylko uruchomić <code>autospec</code> w katalogu aplikacji. (Działa pod rspec 1.1.11)</p>
+</div></article><div class="page-header"><h2>Comments</h2></div><div class="alert alert-info">Please comment at the <a href="http://teamon.jogger.pl/2008/12/02/merb-cucumber-webrat-czyli-wszystko-co-chcielibyscie-wiedzie">original post</a>.</div><ul class="pager"><li class="next"><a href="/2008/pobieranie-listy-plikow-z-dropboxa">Older post →</a></li><li class="previous"><a href="/2009/rack-prosty-parser-haml">← Newer post</a></li></ul></div><footer><div class="container"><div class="page-header"></div><div class="row"><div class="col-md-12"><ul class="list-unstyled"><li class="pull-right"><a href="#top">Back to top ↑</a></li><li><a href="/">Blog</a></li><li><a href="/about.html">About</a></li><li><a href="/projects.html">Projects</a></li><li><a href="/talks.html">Talks</a></li><li>|</li><li><a href="http://github.com/teamon">GitHub</a></li><li><a href="http://twitter.com/iteamon">Twitter</a></li><li><a href="http://monterail.com">Monterail</a></li><li><a href="http://codetunes.com">Codetunes</a></li></ul></div></div><div class="row"><div class="col-md-12"><p>Copyright 2007-2014 &mdash; Tymon Tobolski <br />Based on <a href="http://bootswatch.com/lumen/">Lumen Bootswatch</a>. Web fonts from <a href="http://www.google.com/webfonts">Google</a>. </p></div></div></div></footer></body></html>
