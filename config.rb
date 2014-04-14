@@ -4,7 +4,7 @@ activate :blog do |blog|
   blog.default_extension  = ".md"
   blog.summary_separator  = /(READMORE)/
 
-  blog.permalink          = "/:year/:title"
+  blog.permalink          = "/:year/:title.html"
   blog.sources            = "blog/:title.html"
 
   blog.summary_separator = /(READMORE)/
