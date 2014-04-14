@@ -30,7 +30,6 @@ cd merb_rdb4o
 rake jruby:install
 ```
 
-<!-- more -->
 ### Aplikacja
 
 #### 1. Wygenerowanie szkieletu aplikacji (`core` zamiast `app` - nie chcemy DataMapperowego syfu :P)

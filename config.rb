@@ -63,7 +63,6 @@ set :markdown, {
 # Methods defined in the helpers block are available in templates
 helpers do
   def nav_active(path)
-    puts "#{current_page.path} vs #{path}"
     current_page.path == path ? {:class => "active"} : {}
   end
 end
@@ -79,7 +78,6 @@ end
 
 # Build-specific configuration
 configure :build do
-  activate :minify_html
   activate :minify_css
   activate :minify_javascript
 

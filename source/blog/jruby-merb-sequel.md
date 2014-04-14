@@ -9,7 +9,6 @@ source_url: http://teamon.jogger.pl/2009/04/01/jruby-merb-sequel
 
 Ktoś pewnie stwierdzi "kolejny post o Merbie, bezsensu za chwile i tak się połączy z Rails". Kiedy to nastąpi to jeszcze nie wiadomo, poza tym [Merb](http://merbivore.com) aż tak szybko nie zniknie a migracja na Rails3 ma być w miare bezbolesna. Ale ja nie o tym. [DataMapper](http://datamapper.org) mnie ostatnio wkurzył, co chwile coś się wywala, coś nie działa. Doszedłem do wniosku, że mam dość. Wybór padł na [Sequela](http://sequel.rubyforge.org/). A skoro Sequel działa pod [JRuby](http://jruby.codehaus.org) (w przeciwieństwie do DataMapper) to dlaczego by nie pobawić się też z Javową implementacją Ruby. Z tej mojej zabawy wyszedł ten oto pokrętny mini-tutorial. Enjoy.
 
-<!-- more -->
 ### 1. Instalacja JRuby
 
 Instalacja sprowadza się do pobrania źródeł, kompilacji oraz ustawienia ścieżek. Miejsce instalacji (u mnie `/Users/teamon/jruby`) jest oczywiście dowolne.

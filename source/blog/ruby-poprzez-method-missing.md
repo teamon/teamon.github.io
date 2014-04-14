@@ -38,7 +38,6 @@ Ale jest to co najmniej średnio wygodne.
 
 Z pomocą przychodzi `method_missing`. W bardzo łatwy sposób można zdefiniować regułę, która wyłapie odwołanie do nieistniejącej metody zakończonej `!`.
 
-<!-- more -->
 ```ruby
 class String
   # dla przykładu, to nie jest idealna implementacja :P
