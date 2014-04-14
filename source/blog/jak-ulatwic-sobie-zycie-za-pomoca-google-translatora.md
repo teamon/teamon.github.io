@@ -13,7 +13,6 @@ Nie znalazłem nikogo, a że leniwy jestem to od razu zacząłem kombinować jak
 A tak to wygląda:
 
 ```ruby
-
 #!/opt/local/bin/ruby
 
 require "net/http"
@@ -63,4 +62,4 @@ a potem:
 $ ./google_t.rb /path/to/myapp/po/pl_PL/myapp.po
 ```
 
-I już. Wiadomo, tłumaczenie nie jest idealne, ale w prostych przypadkach się sprawdza (poszczegołne słowa). Pliki wypada przejrzeć jeszcze np. <a href="http://www.poedit.net/">poEdit`em</a> w celu poprawienia błędów. Przynajmniej można się trochę pośmiać ;)
+I już. Wiadomo, tłumaczenie nie jest idealne, ale w prostych przypadkach się sprawdza (poszczegołne słowa). Pliki wypada przejrzeć jeszcze np. <a href="http://www.poedit.net/">poEdit'em</a> w celu poprawienia błędów. Przynajmniej można się trochę pośmiać ;)
