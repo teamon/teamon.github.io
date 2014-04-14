@@ -2,14 +2,15 @@
 title: Tymon Tobolski &mdash; Projects
 ---
 
+.page-header
+  h1 Projects
+
 - data.projects.each do |group|
-  div.projects-group
-    h2= group[:name]
-    ul
-      - group[:projects].each do |project|
-        li.projects-item
-          h3
-            a href=project.url = project.name
-          p.projects-desc
-            '  &mdash;
-            = project.desc
+  h3= group[:name]
+  .list-group
+    - group[:projects].each do |project|
+      a.list-group-item href=project.url
+        h4.list-group-item-heading
+          = project.name
+        p.list-group-item-text
+          = project.desc

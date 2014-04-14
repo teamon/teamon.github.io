@@ -2,16 +2,18 @@
 title: Tymon Tobolski &mdash; Talks
 ---
 
-ul.talks
+.page-header
+  h1 Talks
+
 - data.talks.each do |talk|
-  li.talk
-    div.talk-side
+  .row.talk
+    .col-md-4
       a href=talk[:url]
         img src=talk[:thumb]
-    div.talk-main
-      h2.talk-title
+    .col-md-8
+      h3
         a href=talk[:url] = talk[:title]
-      .talk-date
+      span
         a href=talk[:place_url] = talk[:place]
         ' ,
         time= Date.parse(talk[:date]).strftime('%b %e, %Y')

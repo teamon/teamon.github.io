@@ -3,23 +3,34 @@ html
   head
     = partial "shared/head"
   body class=(page_classes)
+    = partial "shared/nav"
     .container
-      = partial "shared/nav"
-      /= partial "shared/headline"
-
       article.post
-        = partial "shared/post_header", locals: { article: current_article, source_banner: true }
-        .post-content
+        .page-header
+          .row
+            .col-md-10
+              h1= current_article.title
+            .col-md-2.post-date
+              time datetime=current_article.date.strftime('%Y-%m-%d')
+                = current_article.date.strftime('%b %e, %Y')
+
+        - case current_article.data[:source]
+        - when "tumblr"
+          .alert.alert-info
+            | This article was originally
+              <a href="#{current_article.data[:source_url]}">published at Tumblr</a>.
+        - when "jogger"
+          .alert.alert-info
+            | This article is written in Polish and was originally
+              <a href="#{current_article.data[:source_url]}">published at Jogger</a>.
+
+        div.lead
           = yield
-        ul.pagination
-          - prev_article = current_article.previous_article
-          - if prev_article
-            li.pagination-older= link_to 'Older post', prev_article.url, :class => "button-alt prefixed-alt"
-          - next_article = current_article.next_article
-          - if next_article
-            li.pagination-newer= link_to 'Newer post', next_article.url, :class => "button-alt suffixed"
 
-
-
-      = partial "shared/footer"
-
+      ul.pager
+        - if current_article.previous_article
+          li.next
+            a href=current_article.previous_article.url Older post →
+        - if current_article.next_article
+          li.previous
+            a href=current_article.next_article.url ← Newer post

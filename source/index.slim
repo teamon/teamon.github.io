@@ -1,19 +1,29 @@
 ---
 pageable: true
-per_page: 10
+per_page: 5
 title:    Tymon Tobolski
 ---
 
 - page_articles.each_with_index do |article, i|
-  article.post.post-short
-    = partial "shared/post_header", locals: { article: article, source_banner: false }
-    .post-content
+  article.post
+    .page-header
+      .row
+        .col-md-10
+          h1
+            a href=article.url = article.title
+        .col-md-2.post-date
+          time datetime=article.date.strftime('%Y-%m-%d')
+            = article.date.strftime('%b %e, %Y')
+
+    div.lead
       = article.summary
-      .post-more= link_to "Read more", article.url
 
-ul.pagination
+    a.btn.btn-default href=article.url Read more
+
+ul.pager
   - if next_page
-    li.pagination-older= link_to 'Older posts', next_page, :class => "button-alt prefixed-alt"
+    li.next
+      a href=next_page.url Older →
   - if prev_page
-    li.pagination-newer= link_to 'Newer posts', prev_page, :class => "button-alt suffixed"
-
+    li.previous
+      a href=prev_page.url ← Newer

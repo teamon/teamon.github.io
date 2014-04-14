@@ -93,6 +93,6 @@
     url: http://github.com/monterail/angular-ujs
 
   - name: angular faye
-    desc: angular service adapter for <a href="http://faye.jcoglan.com/">faye</a>
+    desc: angular service adapter for faye
     url: http://github.com/teamon/angular-faye
 

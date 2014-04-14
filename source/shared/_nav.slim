@@ -1,8 +1,12 @@
-.banner
-  img src="/assets/images/avatar.jpeg"
-nav
-  ul
-    li: a href="/" Blog
-    li: a href="/about.html" About
-    li: a href="/projects.html" Projects
-    li: a href="/talks.html" Talks
+.navbar.navbar-default
+  .navbar-collapse.collapse.navbar-responsive-collapse
+    .container
+      ul.nav.navbar-nav
+        li(*nav_active("index.html"))
+          a.navbar-brand href="/" Blog
+        li(*nav_active("about.html"))
+          a.navbar-brand href="/about.html" About
+        li(*nav_active("projects.html"))
+          a.navbar-brand href="/projects.html" Projects
+        li(*nav_active("talks.html"))
+          a.navbar-brand href="/talks.html" Talks

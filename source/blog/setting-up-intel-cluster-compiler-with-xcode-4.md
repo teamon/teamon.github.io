@@ -11,7 +11,7 @@ source_url: http://tumblr.teamon.eu/post/4725618392/setting-up-intel-cluster-com
 
 Download Composer XE for Mac from Intel website, run .dmg, click .pkg, click, click, blah, select XCode integration, click, done.
 
-It will install everything under `/opt/inte`l and &hellip; under `/Developer/` (no, symlinks, separate install - well, wtf?)
+It will install everything under `/opt/intel` and &hellip; under `/Developer/` (no, symlinks, separate install - well, wtf?)
 
 To use icc from command line it is first required to run
 ```bash
