@@ -46,17 +46,35 @@
       var app = angular.module("todo", []);
       app.service("Store", function(){
         var store = {
+          version: null,
           items: [],
+          getVersion: function(){
+            var version = localStorage["todo.version"];
+            if(version){
+              return parseInt(version);
+            } else {
+              return 0;
+            }
+          },
           load: function(){
             var data = localStorage["todo.items"];
             if(data){
               this.items = JSON.parse(data);
               this.recalculate();
             }
+
+            this.version = this.getVersion();
           },
           save: function(){
+            if(this.version != this.getVersion()){
+              alert("Data changed by another instance, reloading!");
+              window.location.reload();
+              return;
+            }
+
             this.recalculate();
             localStorage["todo.items"] = JSON.stringify(this.items);
+            localStorage["todo.version"] = ++this.version;
           },
           recalculate: function(){
             function calc(items){
@@ -86,8 +104,11 @@
           children: Store.items
         };
 
+        $scope.version = Store.version;
+
         $scope.check = function(item){
           Store.save();
+          $scope.version = Store.version;
         }
 
         $scope.create = function(item){
@@ -112,6 +133,7 @@
     <div ng-controller="MainController">
       <h1>ToDo List <a href="" ng-click="create()">+</a></h1>
       <div ng-include="'items.html'"></div>
+      <em>(v{{version}})</em>
     </div>
   </body>
 </html>
