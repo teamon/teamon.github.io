@@ -75,6 +75,8 @@
             this.recalculate();
             localStorage["todo.items"] = JSON.stringify(this.items);
             localStorage["todo.version"] = ++this.version;
+
+            return this.version;
           },
           recalculate: function(){
             function calc(items){
@@ -107,8 +109,7 @@
         $scope.version = Store.version;
 
         $scope.check = function(item){
-          Store.save();
-          $scope.version = Store.version;
+          $scope.version = Store.save();
         }
 
         $scope.create = function(item){
@@ -117,14 +118,14 @@
             if(!item) item = $scope.item;
             item.done = false;
             item.children.push({name: name, children: []});
-            Store.save();
+            $scope.version = Store.save();
           }
         }
 
         $scope.delete = function(parent, index){
           if(confirm("Are you sure?")){
             parent.children.splice(index, 1);
-            Store.save();
+            $scope.version = Store.save();
           }
         }
       })
