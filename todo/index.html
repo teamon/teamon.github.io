@@ -5,7 +5,7 @@
     <title>TODO</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.4.6/angular.min.js"></script>
     <style type="text/css">
-      body { font-family: monospace, sans-serif; padding: 50px; line-height: 1.5; }
+      body { font-family: monospace, sans-serif; padding: 50px; line-height: 1.5; color: #111111;}
       body, h1, h2 { margin: 0; font-size: 13px; }
       ul, li { padding: 0; list-style: none; }
       ul ul { padding-left: 20px;}
@@ -14,24 +14,26 @@
       a.red { color: #FF4136; }
       a.red:hover {color: #85144b;}
       em { color: #DDDDDD; }
-      .strike { text-decoration: line-through; }
       .progress { display: inline-block; width: 20px; height:7px; border: 1px solid #AAAAAA; position: relative; border-radius: 5px;}
       .progress span { position: absolute; top: 0; left: 0; height: 7px; background: #AAAAAA; border-radius: 2px; }
-      .done { border-color: #0074D9;}
-      .done span { background: #0074D9;}
+      .done { color: #DDDDDD;}
+      .done span { text-decoration: line-through; }
+      .done .progress { border-color: #0074D9; }
+      .done input, .done .progress, .done a, .done em { opacity: 0.3;}
+      .done .progress span { background: #0074D9;}
       input[type="checkbox"] { width: 20px; margin: 0;}
     </style>
   </head>
   <body>
     <script type="text/ng-template" id="items.html">
       <ul ng-init="parent = item">
-        <li ng-repeat="item in item.children track by $index">
+        <li ng-repeat="item in item.children track by $index"  ng-class="{done: item.done}">
           <label>
             <input ng-if="item.children.length == 0" type="checkbox" ng-model="item.done" ng-change="check(item)"/>
-            <span class="progress" ng-if="item.children.length > 0" ng-class="{done: item.progress == 1}">
+            <span class="progress" ng-if="item.children.length > 0">
               <span style="width: {{ item.progress * 100 }}%"></span>
             </span>
-            <span ng-class="{strike: item.done}">{{ item.name }}</span>
+            <span>{{ item.name }}</span>
           </label>
           <a class="red" href="" ng-click="delete(parent, $index)">-</a>
           <em>/</em>
@@ -83,6 +85,7 @@
               var prog = items.map(function(item){
                 if(item.children.length > 0){
                   item.progress = calc(item.children);
+                  item.done = (item.progress == 1);
                   return item.progress;
                 } else {
                   return (item.done ? 1 : 0);
