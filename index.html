@@ -3,10 +3,13 @@
 <head>
   <title>Tymon Tobolski</title>
   <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <style type="text/css">
     body { font-family: monospace, sans-serif; padding: 30px; line-height: 1.5; }
     body, h1, h2 { margin: 0; font-size: 13px; }
-    section { padding: 20px; box-sizing: border-box; float:left; width: 25%; }
+    section { padding: 20px; box-sizing: border-box; float:left; width: 100%; }
+    @media screen and (min-width:600px) { section { width: 50%;} }
+    @media screen and (min-width:1000px) { section { width: 25%;} }
     ul, li { padding: 0; list-style: none; }
     li { padding-bottom: 15px }
     a { color: #0074D9;}
