@@ -13,6 +13,7 @@
       a:hover { color: #001f3f; }
       a.red { color: #FF4136; }
       a.red:hover {color: #85144b;}
+      .clear { color: #DDDDDD;}
       em { color: #DDDDDD; }
       .progress { display: inline-block; width: 20px; height:7px; border: 1px solid #AAAAAA; position: relative; border-radius: 5px;}
       .progress span { position: absolute; top: 0; left: 0; height: 7px; background: #AAAAAA; border-radius: 2px; }
@@ -80,6 +81,19 @@
 
             return this.version;
           },
+          clear: function(){
+            function clr(items){
+              return items.filter(function(item){
+                return !item.done;
+              }).map(function(item){
+                item.children = clr(item.children);
+                return item;
+              });
+            }
+
+            this.items = clr(this.items);
+            return this.save();
+          },
           recalculate: function(){
             function calc(items){
               var prog = items.map(function(item){
@@ -131,13 +145,18 @@
             $scope.version = Store.save();
           }
         }
+
+        $scope.clear = function(){
+          $scope.version = Store.clear();
+          $scope.item.children = Store.items;
+        }
       })
     </script>
 
     <div ng-controller="MainController">
       <h1>ToDo List <a href="" ng-click="create()">+</a></h1>
       <div ng-include="'items.html'"></div>
-      <em>(v{{version}})</em>
+      <em>(v{{version}})</em> <a class="clear" href="" ng-click="clear()">clear completed</a>
     </div>
   </body>
 </html>
