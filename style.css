@@ -1,0 +1,102 @@
+body { font-family: monospace, sans-serif; padding: 30px; line-height: 1.5; color: #111; }
+body, h1, h2, h3, h4, h5, h6 { margin: 0; font-size: 13px; }
+section { padding: 20px; box-sizing: border-box; float:left; width: 100%; }
+@media screen and (min-width:600px) { section { width: 50%;} }
+@media screen and (min-width:1000px) { section { width: 25%;} }
+section ul, section li { padding: 0; list-style: none; }
+section li { padding-bottom: 15px }
+a { color: #0074D9;}
+a:hover { color: #001f3f; }
+time { color: #AAAAAA; }
+
+nav { width: 100%; max-width: 600px; margin: auto; }
+nav a { color: #aaa;}
+article { width: 100%; max-width: 600px; margin: auto; padding: 20px;}
+
+h1,h2,h3,h4,h5,h6 { position: relative }
+h1:before,
+h2:before,
+h3:before,
+h4:before,
+h5:before,
+h6:before {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 50px;
+  margin-left: -55px;
+  text-align: right;
+}
+h1:before { content: '#'; }
+h2:before { content: '##'; }
+h3:before { content: '###';}
+h4:before { content: '####'; }
+h5:before { content: '#####'; }
+h6:before { content: '######'; }
+
+article blockquote { font-style: italic; border-left: 5px solid #eee; margin-left: 0; padding-left: 20px; color: #aaa;}
+article pre { background: #eee; padding: 5px 10px;}
+article p img { display: block; margin: auto; max-width: 100%;}
+article p img + a { text-align: center; display: block;}
+article ul, article ol, article li { padding: 0; }
+article code { color: #85144b;}
+
+article .c{color:#998}
+article .err{color:#a61717;background-color:#e3d2d2}
+article .k{color:#222}
+article .o{color:#222}
+article .cm{color:#998}
+article .cp{color:#999}
+article .c1{color:#998}
+article .cs{color:#999}
+article .gd{color:#222;background-color:#ffdddd}
+article .ge{color:#222}
+article .gr{color:#a00}
+article .gh{color:#999}
+article .gi{color:#222;background-color:#ddffdd}
+article .go{color:#888888}
+article .gp{color:#555}
+article .gu{color:#aaaaaa}
+article .gt{color:#a00}
+article .kc{color:#222}
+article .kd{color:#222}
+article .kn{color:#222}
+article .kp{color:#222}
+article .kr{color:#222}
+article .kt{color:#458}
+article .m{color:#099}
+article .s{color:#d14}
+article .na{color:#008080}
+article .nb{color:#0086B3}
+article .nc{color:#458}
+article .no{color:#008080}
+article .nd{color:#3c5d5d}
+article .ni{color:#800080}
+article .ne{color:#900}
+article .nf{color:#900}
+article .nl{color:#900}
+article .nn{color:#555}
+article .nt{color:#000080}
+article .nv{color:#008080}
+article .ow{color:#222}
+article .w{color:#bbb}
+article .mf{color:#099}
+article .mh{color:#099}
+article .mi{color:#099}
+article .mo{color:#099}
+article .sb{color:#d14}
+article .sc{color:#d14}
+article .sd{color:#d14}
+article .s2{color:#d14}
+article .se{color:#d14}
+article .sh{color:#d14}
+article .si{color:#d14}
+article .sx{color:#d14}
+article .sr{color:#009926}
+article .s1{color:#d14}
+article .ss{color:#990073}
+article .bp{color:#999}
+article .vc{color:#008080}
+article .vg{color:#008080}
+article .vi{color:#008080}
+article .il{color:#099}
