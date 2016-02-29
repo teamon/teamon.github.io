@@ -4,41 +4,23 @@ section { padding: 20px; box-sizing: border-box; float:left; width: 100%; }
 @media screen and (min-width:600px) { section { width: 50%;} }
 @media screen and (min-width:1000px) { section { width: 25%;} }
 section ul, section li { padding: 0; list-style: none; }
-section li { padding-bottom: 15px }
+section ul { padding-bottom: 50px; }
+section li { padding-bottom: 15px; }
 a { color: #0074D9;}
 a:hover { color: #001f3f; }
 time { color: #AAAAAA; }
 
 nav { width: 100%; max-width: 600px; margin: auto; }
 nav a { color: #aaa;}
-article { width: 100%; max-width: 600px; margin: auto; padding: 20px;}
 
-h1,h2,h3,h4,h5,h6 { position: relative }
-h1:before,
-h2:before,
-h3:before,
-h4:before,
-h5:before,
-h6:before {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 50px;
-  margin-left: -55px;
-  text-align: right;
-}
-h1:before { content: '#'; }
-h2:before { content: '##'; }
-h3:before { content: '###';}
-h4:before { content: '####'; }
-h5:before { content: '#####'; }
-h6:before { content: '######'; }
 
+article { width: 100%; max-width: 700px; margin: auto; padding: 20px;}
 article blockquote { font-style: italic; border-left: 5px solid #eee; margin-left: 0; padding-left: 20px; color: #aaa;}
 article pre { background: #eee; padding: 5px 10px;}
 article p img { display: block; margin: auto; max-width: 100%;}
 article p img + a { text-align: center; display: block;}
-article ul, article ol, article li { padding: 0; }
+article li { padding: 0; }
+article ul, article ol { padding: 0 0 0 30px; }
 article code { color: #85144b;}
 
 article .c{color:#998}
