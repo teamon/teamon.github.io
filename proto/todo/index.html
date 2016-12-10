@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html ng-app="todo">
+  <head>
+    <meta charset="UTF-8" />
+    <title>TODO</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.4.6/angular.min.js"></script>
+    <style type="text/css">
+      body { font-family: monospace, sans-serif; padding: 50px; line-height: 1.5; color: #111111;}
+      body, h1, h2 { margin: 0; font-size: 13px; }
+      ul, li { padding: 0; list-style: none; }
+      ul ul { padding-left: 20px;}
+      a { color: #0074D9; text-decoration: none;}
+      a:hover { color: #001f3f; }
+      a.red { color: #FF4136; }
+      a.red:hover {color: #85144b;}
+      .clear { color: #DDDDDD;}
+      em { color: #DDDDDD; }
+      .progress { display: inline-block; width: 20px; height:7px; border: 1px solid #AAAAAA; position: relative; border-radius: 5px;}
+      .progress span { position: absolute; top: 0; left: 0; height: 7px; background: #AAAAAA; border-radius: 2px; }
+      .done { color: #DDDDDD;}
+      .done span { text-decoration: line-through; }
+      .done .progress { border-color: #0074D9; }
+      .done input, .done .progress, .done a, .done em { opacity: 0.3;}
+      .done .progress span { background: #0074D9;}
+      input[type="checkbox"] { width: 20px; margin: 0;}
+    </style>
+  </head>
+  <body>
+    <script type="text/ng-template" id="items.html">
+      <ul ng-init="parent = item">
+        <li ng-repeat="item in item.children track by $index"  ng-class="{done: item.done}">
+          <label>
+            <input ng-if="item.children.length == 0" type="checkbox" ng-model="item.done" ng-change="check(item)"/>
+            <span class="progress" ng-if="item.children.length > 0">
+              <span style="width: {{ item.progress * 100 }}%"></span>
+            </span>
+            <span>{{ item.name }}</span>
+          </label>
+          <a class="red" href="" ng-click="delete(parent, $index)">-</a>
+          <em>/</em>
+          <a href="" ng-click="create(item)">+</a>
+
+          <div ng-include="'items.html'"></div>
+        </li>
+      </ul>
+    </script>
+
+    <script type="text/javascript">
+      var app = angular.module("todo", []);
+      app.service("Store", function(){
+        var store = {
+          version: null,
+          items: [],
+          getVersion: function(){
+            var version = localStorage["todo.version"];
+            if(version){
+              return parseInt(version);
+            } else {
+              return 0;
+            }
+          },
+          load: function(){
+            var data = localStorage["todo.items"];
+            if(data){
+              this.items = JSON.parse(data);
+              this.recalculate();
+            }
+
+            this.version = this.getVersion();
+          },
+          save: function(){
+            if(this.version != this.getVersion()){
+              alert("Data changed by another instance, reloading!");
+              window.location.reload();
+              return;
+            }
+
+            this.recalculate();
+            localStorage["todo.items"] = JSON.stringify(this.items);
+            localStorage["todo.version"] = ++this.version;
+
+            return this.version;
+          },
+          clear: function(){
+            function clr(items){
+              return items.filter(function(item){
+                return !item.done;
+              }).map(function(item){
+                item.children = clr(item.children);
+                return item;
+              });
+            }
+
+            this.items = clr(this.items);
+            return this.save();
+          },
+          recalculate: function(){
+            function calc(items){
+              var prog = items.map(function(item){
+                if(item.children.length > 0){
+                  item.progress = calc(item.children);
+                  item.done = (item.progress == 1);
+                  return item.progress;
+                } else {
+                  return (item.done ? 1 : 0);
+                }
+              });
+              var sum = 0;
+              for(var i=0; i<prog.length; i++) sum += prog[i];
+              return sum / prog.length;
+            }
+
+            calc(this.items);
+          }
+        }
+
+        store.load();
+        return store;
+      });
+
+      app.controller("MainController", function($scope, Store){
+        $scope.item = {
+          children: Store.items
+        };
+
+        $scope.version = Store.version;
+
+        $scope.check = function(item){
+          $scope.version = Store.save();
+        }
+
+        $scope.create = function(item){
+          var name = prompt("New ToDo:");
+          if(name){
+            if(!item) item = $scope.item;
+            item.done = false;
+            item.children.push({name: name, children: []});
+            $scope.version = Store.save();
+          }
+        }
+
+        $scope.delete = function(parent, index){
+          if(confirm("Are you sure?")){
+            parent.children.splice(index, 1);
+            $scope.version = Store.save();
+          }
+        }
+
+        $scope.clear = function(){
+          $scope.version = Store.clear();
+          $scope.item.children = Store.items;
+        }
+      })
+    </script>
+
+    <div ng-controller="MainController">
+      <h1>ToDo List <a href="" ng-click="create()">+</a></h1>
+      <div ng-include="'items.html'"></div>
+      <em>(v{{version}})</em> <a class="clear" href="" ng-click="clear()">clear completed</a>
+    </div>
+  </body>
+</html>

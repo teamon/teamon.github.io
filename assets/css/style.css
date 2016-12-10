@@ -1,0 +1,86 @@
+body {
+  font-family: Menlo, Monaco, "DejaVu Sans Mono", Consolas, monospace;
+  font-size: 14px;
+  background: #eee;
+}
+
+
+
+.container {
+  max-width: 700px;
+  padding: 10px;
+  margin: auto;
+  background: #fff;
+  border: 1px solid #ddd;
+}
+
+@media(min-width: 300px){
+  .container {
+    padding: 20px 20px;
+  }
+}
+
+@media(min-width: 700px){
+  .container {
+    padding: 40px 80px;
+  }
+}
+
+header {
+  overflow: hidden;
+  padding-bottom: 21px;
+}
+header nav {
+  float: right
+}
+header span {
+  float: left;
+}
+
+a {
+  color: #a0f;
+  text-decoration: none;
+}
+
+a:hover {
+	border-bottom: 1px solid;
+}
+time { color: #aaa;}
+article time {
+  display: block;
+  text-align: right;
+}
+
+[data-rmd] h1 {
+  font-weight: bold;
+  text-align: center;
+  text-transform: uppercase;
+}
+[data-rmd] h1::before {
+  content: ""
+}
+[data-rmd] h2 {
+  font-weight: bold;
+}
+[data-rmd] h2::before {
+  color: #aaa;
+}
+[data-rmd] code {
+  color: #999;
+}
+[data-rmd] em {
+  font-style: italic;
+}
+[data-rmd] strong {
+  font-weight: bold;
+}
+
+pre { overflow: auto; }
+
+p.source { text-align: center; color: #aaa; }
+p.share { text-align: center; }
+footer { text-align: center; color: #aaa; font-size: 12px; padding: 10px; }
+article img {
+  display: block;
+  margin:auto;
+}

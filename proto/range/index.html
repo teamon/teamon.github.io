@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html ng-app="range">
+<head>
+  <title>Test</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.4.6/angular.min.js"></script>
+  <script type="text/javascript" src="range.js"></script>
+  <style type="text/css">
+    body {
+      font: 10px "Lucida Grande";
+      padding: 50px;
+      background: #EFEFF4;
+      -webkit-touch-callout: none;
+      -webkit-user-select: none;
+      -khtml-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+      outline: none;
+    }
+    canvas {
+      margin: 10px;
+      display: block;
+      cursor: ns-resize;
+    }
+    nav {
+      position: fixed;
+      top: 30px;
+      right: 30px;
+    }
+  </style>
+</head>
+<body>
+  <div ng-controller="MainCtrl">
+    <h4>{{ k.length }}</h4>
+    <canvas width="728" height="50" chart="data"></canvas>
+    <canvas width="728" height="50" chart="data"></canvas>
+    <canvas width="728" height="50" chart="data"></canvas>
+    <canvas width="728" height="50" chart="data"></canvas>
+    <canvas width="728" height="50" chart="data"></canvas>
+    <pre>$scope.data = {{ data }}</pre>
+    <button ng-click="random()">random</button>
+  </div>
+</body>
+</html>

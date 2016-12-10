@@ -1,0 +1,14 @@
+---
+layout: default
+---
+
+<h1>Articles</h1>
+
+<ul>
+  {% for post in site.posts %}
+  <li>
+    <time>{{ post.date | date:"%b %d, %Y" }}</time>
+    <a href="{{ site.baseurl }}{{ post.url | remove_first: '/' }}">{{ post.title }}</a>
+  </li>
+  {% endfor %}
+</ul>
