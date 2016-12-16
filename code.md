@@ -8,6 +8,7 @@ title: Code
 ## Open source projects
 
 * [tesla](http://github.com/monterail/tesla) - Middleware-based **Elixir** HTTP client
+* [mix_docker](http://github.com/recruitee/mix_docker) - Put your Elixir app inside docker
 * [rails-assets.org](http://rails-assets.org) - The solution to managing assets in **Rails**
 * [sickle](http://github.com/teamon/sickle) - **Ruby** library for building complex CLI tools
 * [redis-browser](http://github.com/monterail/redis-browser) - Redis Database Browser
