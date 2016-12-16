@@ -26,7 +26,7 @@ Here is an example how you could implement efficient parallel processing with ju
 The basic question that has to be asked was: "so, what's the problem?".
 Before jumping into conclusions it is crucial to understand the problem we are dealing with.
 
-In our processing pipeline every step has very different characteristic:
+In our processing pipeline every step has a different characteristic:
 
 - SELECT: We need to execute some SQL query that will return 100.000s records.
   This is best done using PostgreSQL cursors.
@@ -164,5 +164,5 @@ proper _speed_ benchmark.
 
 GenStage and it's higher-level "wrapper" Flow provide building blocks for efficient parallel pipeline processing.
 Obviously it is not magic and we can't forget about performance measurements.
-I am however confident, that when "correct" performance characteristic is achieved the whole system
+Yet, I am confident, that when "correct" performance characteristic is achieved the whole system
 can scale pretty well into larger datasets while keeping the resource usage low.
