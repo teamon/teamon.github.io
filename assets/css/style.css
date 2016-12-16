@@ -79,8 +79,12 @@ pre { overflow: auto; }
 
 p.source { text-align: center; color: #aaa; }
 p.share { text-align: center; }
+p.alt { text-align: center;}
 footer { text-align: center; color: #aaa; font-size: 12px; padding: 10px; }
-article img {
+p img {
   display: block;
   margin:auto;
+  max-width: 100%;
 }
+
+a < img::before {content: ""}

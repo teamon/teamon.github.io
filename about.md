@@ -6,10 +6,11 @@ title: About
 
 Always curious [developer](/code), ocassional [writer](/) and [speaker](/talks).
 
+
 ## Elsewhere
 
 - [GitHub](http://github.com/teamon)
-- [Twitter](http://twitter.com/iteamon) 
+- [Twitter](http://twitter.com/iteamon)
 - [LinkedIn](https://www.linkedin.com/in/teamon)
 - [Speaker Deck](http://speakerdeck.com/teamon)
 
@@ -21,3 +22,7 @@ Always curious [developer](/code), ocassional [writer](/) and [speaker](/talks).
 
 ## Education
 - 2009-2012 Bachelor of Science, Computer Science, [Politechnika Wrocławska](http://pwr.wroc.pl)
+
+
+## Human
+![](/assets/images/me.jpg)
