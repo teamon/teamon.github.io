@@ -166,3 +166,7 @@ GenStage and it's higher-level "wrapper" Flow provide building blocks for effici
 Obviously it is not magic and we can't forget about performance measurements.
 Yet, I am confident, that when "correct" performance characteristic is achieved the whole system
 can scale pretty well into larger datasets while keeping the resource usage low.
+
+## Follow-up
+
+[Measuring and visualizing GenStage/Flow with Gnuplot](/2016/measuring-visualizing-genstage-flow-with-gnuplot/)
