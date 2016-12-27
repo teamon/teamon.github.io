@@ -88,3 +88,15 @@ p img {
 }
 
 a < img::before {content: ""}
+
+.g table {margin: auto}
+.g h1, .g h2 { text-align: center; }
+.g table img { width: 600px; }
+
+.g {
+  max-width: 1300px;
+  padding: 10px;
+  margin: auto;
+  background: #fff;
+  border: 1px solid #ddd;
+}
