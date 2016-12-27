@@ -7,8 +7,8 @@ some people asked about follow-up on measurements and plotting, so here it is.
 
 ## White lies
 
-Before we start, I need to admin to one thing. In the last post I've written that I've used `Repo.stream` from Ecto.
-The truth is I've used [my own version](https://gist.github.com/teamon/c5dc163ce7243cb5088ec72b0e132623/8ec1b76d2b37acee788d7446062b195e1df4ed21)
+Before we start, I need to admit to one thing. In the last post, I've written that I've used `Repo.stream` from Ecto.
+The truth is, I've used [my own version](https://gist.github.com/teamon/c5dc163ce7243cb5088ec72b0e132623/8ec1b76d2b37acee788d7446062b195e1df4ed21)
 of `Repo.stream` that has been in Recruitee codebase long before Ecto got one. This difference will be very important
 when we will talk about measuring progress.
 
@@ -26,7 +26,7 @@ And the one I'm going to describe, although being extremely simple is no differe
 
 In Elixir/Erlang world it comes quite naturally that the collector could be a separate process
 and to emit metrics events we can send messages to that process. And for the storage part we can
-just use file system.
+just use the file system.
 
 Below is the annotated, complete source code of the progress collector,
 based on [GenServer](https://hexdocs.pm/elixir/GenServer.html):
@@ -96,7 +96,7 @@ end
 ```
 
 In short, the progress process opens a separate log file for every scope given,
-saves the time of own start and for every `:incr` message writes new line into related file.
+saves the time of own start and for every `:incr` message writes a new line into a related file.
 We keep the files open to avoid opening it for every event (which would be much slower).
 Since it is a separate process, that is stopped after processing is finished,
 we don't really have to care about closing open files - every file handle
@@ -105,7 +105,7 @@ linked to the process that originally opened it, and will be closed when parent
 process terminates.
 
 
-In order to emit metrics events I had to modify stages functions with calls to `Progress.inc`.
+In order to emit metrics events I had to modify stages functions with calls to `Progress.incr`.
 It was mostly straightforward, except it required [a small addition](https://gist.github.com/teamon/c5dc163ce7243cb5088ec72b0e132623/revisions#diff-027d6a5336746df73c3cf365cb0922dc)
 to `Repo.stream` code.
 
@@ -217,7 +217,6 @@ produces:
 
 ## That's it
 
-
-I think the most advantage of using tools like gnuplot instead of Excel/Google Docs is the mentioned automation.
-Most modern image browsers can automatically reload file when changed, so you can see the data plotted almost instantly.
+I think the biggest advantage of using tools like gnuplot instead of Excel/Google Docs is the mentioned automation.
+Most modern image browsers can automatically reload a file when it's changed, so you can see the data plotted almost instantly.
 And as a bonus, you get `.png` files ready for Twitter/Blog post ;)
