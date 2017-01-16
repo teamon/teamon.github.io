@@ -75,6 +75,16 @@ article time {
   font-weight: bold;
 }
 
+[data-rmd] a.img::before { content: "" }
+[data-rmd] a.img::after { content: "" }
+[data-rmd] a.img span {
+  display: block; text-align: center;
+}
+[data-rmd] a.img:hover span {
+  text-decoration: underline;
+}
+
+
 pre { overflow: auto; }
 
 p.source { text-align: center; color: #aaa; }
