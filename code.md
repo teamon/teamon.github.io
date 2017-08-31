@@ -21,7 +21,7 @@ More at my [GitHub](https://github.com/teamon)
 
 ## Experiments
 
-* [elixir sandbox](http://github.com/teamon/akka.js) - Various elixir experiments
+* [elixir sandbox](http://github.com/teamon/sandbox) - Various elixir experiments
 * [akka.js](http://github.com/teamon/akka.js) - **akka** actors for javascript
 * [ToDo](/proto/todo/) - Nested ToDo list based on local storage
 * [Range](/proto/range/) - rangeapp.com core UI element
