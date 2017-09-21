@@ -110,3 +110,13 @@ a < img::before {content: ""}
   background: #fff;
   border: 1px solid #ddd;
 }
+
+.side-by-side .container { max-width: 1200px; }
+.side-by-side section.content div.highlighter-rouge { width: 50%; float: left; clear: left }
+.side-by-side section.content div.highlighter-rouge + p { width: 48%; float: right; clear: right;}
+.side-by-side section.content div.highlighter-rouge pre { margin-left: 0; }
+.side-by-side section.content * { clear: both }
+
+.two-columns .container { max-width: 1200px; }
+.two-columns section.content div.highlighter-rouge { width: 50%; float: left; }
+.two-columns section.content div.highlighter-rouge pre { margin-left: 0; }

@@ -6,9 +6,11 @@ layout: default
 
 <ul>
   {% for post in site.posts %}
-  <li>
-    <time>{{ post.date | date:"%b %d, %Y" }}</time>
-    <a href="{{ site.baseurl }}{{ post.url | remove_first: '/' }}">{{ post.title }}</a>
-  </li>
+    {% unless post.draft %}
+    <li>
+      <time>{{ post.date | date:"%b %d, %Y" }}</time>
+      <a href="{{ site.baseurl }}{{ post.url | remove_first: '/' }}">{{ post.title }}</a>
+    </li>
+    {% endunless %}
   {% endfor %}
 </ul>
