@@ -3,6 +3,7 @@ description: Ruby, Elixir, DevOps
 meta_description: "Ruby, Elixir, DevOps"
 
 aboutPage: true
+github: [metadata]
 
 markdown: kramdown
 highlighter: rouge
