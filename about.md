@@ -6,6 +6,8 @@ title: About
 
 Always curious [developer](/code), ocassional [writer](/) and [speaker](/talks).
 
+Author of [Bitebot](https://bitebot.io), Elixir/Dev/Ops at [Recruitee](http://recruitee.com)
+
 
 ## Elsewhere
 

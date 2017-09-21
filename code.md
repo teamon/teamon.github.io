@@ -4,6 +4,8 @@ title: Code
 
 # Code
 
+## Projects
+* [Bitebot](https://bitebot.io) - Coordinate everyday lunches directly in Slack
 
 ## Open source projects
 
