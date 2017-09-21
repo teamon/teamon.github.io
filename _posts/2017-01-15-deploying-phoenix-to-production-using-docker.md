@@ -1,5 +1,5 @@
 ---
-title: Deploying Phoenix to production using docker
+title: Deploying Phoenix to production using Docker
 ---
 
 This is a short tutorial on how we at [Recruitee](http://recruitee.com) are running Phoenix

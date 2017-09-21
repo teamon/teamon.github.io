@@ -1,5 +1,5 @@
 ---
-title: A different approach to testing elixir with mocks/doubles
+title: A different approach to testing Elixir with mocks/doubles
 ---
 
 After watching [J B Rainsberger's talk "Integrated Tests Are A Scam"](https://www.youtube.com/watch?v=VDfX44fZoMc) I decided to revisit the elixir ecosystem for available tools for mocks/doubles.
