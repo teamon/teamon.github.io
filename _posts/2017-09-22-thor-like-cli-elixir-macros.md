@@ -271,5 +271,5 @@ although this could be easily handled using Ruby's [respond_to?](https://ruby-do
 
 ## BONUS
 
-- [Side by side comparison](/2017/thor-like-cli-elixir-macros-ide-by-side) of Ruby & Elixir versions
-- [Both implementation as a gist](https://gist.github.com/teamon/6b8a6813dc941d69355e90cf1df734c0) (with decompiled elixir)
+- [Side by side comparison](/2017/thor-like-cli-elixir-macros-side-by-side) of Ruby & Elixir versions
+- [Both implementations as a gist](https://gist.github.com/teamon/6b8a6813dc941d69355e90cf1df734c0) (with decompiled elixir)
