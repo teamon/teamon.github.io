@@ -4,7 +4,7 @@ class: two-columns
 draft: true
 ---
 
-A side-by-side version of [Building Thor-like CLI in Elixir](/2017/thor-like-cli-elixir)
+A side-by-side version of [Building Thor-like CLI in Elixir](/2017/thor-like-cli-elixir-macros)
 
 ```ruby
 ## RUBY
