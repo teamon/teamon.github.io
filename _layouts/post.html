@@ -15,6 +15,9 @@ layout: default
   {% endif %}
 
   <section class="content">
+    {% if page.class %}
+      <div class="info">Because of its format this article is best viewed on big screen.</div>
+    {% endif %}
     {{ content }}
   </section>
 </article>
