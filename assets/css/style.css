@@ -68,6 +68,9 @@ article time {
 [data-rmd] code {
   color: #999;
 }
+[data-rmd] a code {
+  color: inherit;
+}
 [data-rmd] em {
   font-style: italic;
 }

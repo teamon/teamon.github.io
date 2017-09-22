@@ -1,11 +1,10 @@
 ---
-title: Building Thor-like CLI in Elixir 2
+title: Building Thor-like CLI in Elixir - side-by-side
 class: two-columns
 draft: true
 ---
 
-Since ruby is an interpreted language there is no such thing as compilation, but similar two phases can be distinguished: preparing the CLI class and executing an action based on command line arguments.
-
+A side-by-side version of [Building Thor-like CLI in Elixir](/2017/thor-like-cli-elixir)
 
 ```ruby
 ## RUBY
