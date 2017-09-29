@@ -65,7 +65,7 @@ layout: default
     {% unless post.draft %}
     <li>
       <time class="dates">{{ post.date | date:"%b %d" }}</time>
-      <a href="{{ site.baseurl }}{{ post.url | remove_first: '/' }}">{{ post.title }}</a>
+      <a href="{{ site.baseurl }}{{ post.url }}">{{ post.title }}</a>
     </li>
     {% endunless %}
   {% endfor %}
