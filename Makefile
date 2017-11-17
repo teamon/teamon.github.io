@@ -1,9 +1,11 @@
 all: help
 
 install: ## Install dependencies
+	which ruby || asdf install
+	which bundle || gem install bundler
 	bundle install
 
-start: ## Start development server at port 4000
+start: ## Start development server at port 4444
 	bundle exec jekyll server --livereload --watch --future --port 4444
 
 help:
