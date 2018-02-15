@@ -6,7 +6,7 @@ title: About
 
 Always curious [developer](/code), ocassional [writer](/) and [speaker](/talks).
 
-Author of [Bitebot](https://bitebot.io), Elixir/Dev/Ops at [Recruitee](http://recruitee.com)
+Author of [Bitebot](https://bitebot.io), Software Engineer at [Cabify](https://cabify.com)
 
 
 ## Elsewhere
@@ -18,8 +18,9 @@ Author of [Bitebot](https://bitebot.io), Elixir/Dev/Ops at [Recruitee](http://re
 
 
 ## Experience
-- since 2016 Elixir Developer / DevOps, [Recruitee](http://recruitee.com)
-- 2013-2016 Chief Technology Officer, [Monterail](http://monterail.com)
+- since 2017 Software Engineer, [Cabify](https://cabify.com)
+- 2016-2017 Elixir Developer / DevOps, [Recruitee](http://recruitee.com)
+- 2013-2016 CTO, [Monterail](http://monterail.com)
 - 2011-2013 Ruby on Rails developer, [Monterail](http://monterail.com)
 
 ## Education
@@ -28,3 +29,9 @@ Author of [Bitebot](https://bitebot.io), Elixir/Dev/Ops at [Recruitee](http://re
 
 ## Human
 ![](/assets/images/me.jpg)
+
+
+## Contact
+
+- [@teamon at elixir-lang Slack](https://elixir-slackin.herokuapp.com/)
+- [@iteamon at twitter](https://twitter.com/iteamon)
