@@ -5,7 +5,7 @@ title: Code
 # Code
 
 ## Projects
-* [Bitebot](https://bitebot.io) - Coordinate everyday lunches directly in Slack
+* [ubots](https://ubots.xyz) - smart Slack bots for teams
 
 ## Open source projects
 
