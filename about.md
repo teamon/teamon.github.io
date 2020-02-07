@@ -6,7 +6,7 @@ title: About
 
 Always curious [developer](/code), ocassional [writer](/) and [speaker](/talks).
 
-Author of [Bitebot](https://bitebot.io), Software Engineer at [Cabify](https://cabify.com)
+Founder of [ubots](https://ubots.xyz), Principal Software Engineer at [Cabify](https://cabify.com)
 
 
 ## Elsewhere
